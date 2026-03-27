@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStudentStore } from '@/store/studentStore';
 import type { Subject } from '@/types';
 import { getGrade } from '@/types';
+import { reportCardsApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,11 +20,31 @@ const DEFAULT_SUBJECTS: Subject[] = [
 export default function ReportCard() {
   const { students } = useStudentStore();
   const [selectedStudent, setSelectedStudent] = useState('');
+  const [term, setTerm] = useState<'Term 1' | 'Term 2' | 'Annual'>('Annual');
   const [academicYear, setAcademicYear] = useState('2024-2025');
   const [subjects, setSubjects] = useState<Subject[]>(DEFAULT_SUBJECTS);
   const [remarks, setRemarks] = useState('');
+  const [savedReportCards, setSavedReportCards] = useState<any[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const student = students.find((s) => s.id === selectedStudent);
+
+  useEffect(() => {
+    const loadReportCards = async () => {
+      if (!selectedStudent) {
+        setSavedReportCards([]);
+        return;
+      }
+      try {
+        const data = await reportCardsApi.getByStudent(selectedStudent);
+        setSavedReportCards(data);
+      } catch (error) {
+        console.error('Failed to load saved report cards:', error);
+      }
+    };
+
+    loadReportCards();
+  }, [selectedStudent]);
 
   const totalObtained = subjects.reduce((sum, s) => sum + s.obtainedMarks, 0);
   const totalMax = subjects.reduce((sum, s) => sum + s.maxMarks, 0);
@@ -37,6 +58,41 @@ export default function ReportCard() {
     const updated = [...subjects];
     (updated[i] as any)[field] = value;
     setSubjects(updated);
+  };
+
+  const handleSaveReportCard = async () => {
+    if (!student) return;
+    try {
+      setIsSaving(true);
+      const savedCard = await reportCardsApi.create({
+        studentId: student.id,
+        term,
+        subjects,
+      });
+      setSavedReportCards([savedCard, ...savedReportCards]);
+      alert('Report card saved successfully');
+    } catch (error) {
+      console.error('Failed to save report card:', error);
+      alert('Error saving report card');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteReportCard = async (id: string) => {
+    if (!confirm('Delete this report card?')) return;
+    try {
+      await reportCardsApi.delete(id);
+      setSavedReportCards(savedReportCards.filter((card) => card._id !== id));
+    } catch (error) {
+      console.error('Failed to delete report card:', error);
+      alert('Error deleting report card');
+    }
+  };
+
+  const handleLoadReportCard = (card: any) => {
+    setTerm(card.term);
+    setSubjects(card.subjects);
   };
 
   const canPreview = student && subjects.length > 0 && subjects.every((s) => s.name.trim());
@@ -54,8 +110,50 @@ export default function ReportCard() {
         <StudentFilter selectedStudent={selectedStudent} onSelectStudent={setSelectedStudent} label="Select Student" />
       </div>
 
+      {savedReportCards.length > 0 && (
+        <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Saved Report Cards</h2>
+              <p className="text-sm text-muted-foreground">Recent report cards for this student are stored in the database.</p>
+            </div>
+            <span className="text-sm text-muted-foreground">{savedReportCards.length} items</span>
+          </div>
+          <div className="space-y-3">
+            {savedReportCards.map((card) => (
+              <div key={card._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-muted rounded-lg">
+                <div>
+                  <p className="font-medium text-foreground">{card.term} • {new Date(card.createdAt).toLocaleDateString()}</p>
+                  <p className="text-sm text-muted-foreground">{card.subjects.length} subjects</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleLoadReportCard(card)}>
+                    Load
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleDeleteReportCard(card._id)} className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Term</Label>
+            <select
+              value={term}
+              onChange={(e) => setTerm(e.target.value as 'Term 1' | 'Term 2' | 'Annual')}
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+            >
+              <option value="Term 1">Term 1</option>
+              <option value="Term 2">Term 2</option>
+              <option value="Annual">Annual</option>
+            </select>
+          </div>
           <div className="space-y-2">
             <Label>Academic Year</Label>
             <Input value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} maxLength={20} />
@@ -91,7 +189,10 @@ export default function ReportCard() {
 
       {canPreview && (
         <>
-          <div className="flex justify-end no-print">
+          <div className="flex justify-end gap-3 no-print">
+            <Button onClick={handleSaveReportCard} className="gap-2" disabled={isSaving}>
+              <Plus className="h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Report Card'}
+            </Button>
             <Button onClick={() => window.print()} className="gap-2">
               <Printer className="h-4 w-4" /> Print Report Card
             </Button>
@@ -208,14 +309,12 @@ export default function ReportCard() {
               <div className="text-center">
                 <div className="w-40">
                   <div className="h-10 mb-1" />
-                  <div className="border-b border-foreground mb-1" />
                   <p className="font-medium">Class Teacher</p>
                 </div>
               </div>
               <div className="text-center">
                 <div className="w-40">
                   <img src="/sign.jpeg" alt="Principal Signature" className="mx-auto h-10 object-contain mb-1" style={{ WebkitPrintColorAdjust: 'exact' }} />
-                  <div className="border-b border-foreground mb-1" />
                   <p className="font-medium">Principal</p>
                 </div>
               </div>

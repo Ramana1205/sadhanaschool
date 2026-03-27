@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStudentStore } from '@/store/studentStore';
+import { hallTicketsApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,7 @@ import { Printer, Plus, Trash2, Save, History } from 'lucide-react';
 import StudentFilter from '@/components/StudentFilter';
 
 // logo file placed in public folder
-const logoUrl = '/logo.jpg';
+const logoUrl = '/logo1.jpeg';
 
 // All available classes
 const ALL_CLASSES = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
@@ -27,13 +28,12 @@ interface SavedHallTicket {
   academicYear: string;
   subjects: Subject[];
   generationType: 'single' | 'class';
+  studentIds?: Array<{ _id: string; name: string; rollNumber: string; class: string; section: string }>;
   createdAt: string;
   updatedAt: string;
 }
 
 type GenerationType = 'single' | 'class';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function HallTicket() {
   const { students } = useStudentStore();
@@ -59,6 +59,19 @@ export default function HallTicket() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  useEffect(() => {
+    const loadSavedTickets = async () => {
+      try {
+        const data = await hallTicketsApi.getAll();
+        setSavedTickets(data);
+      } catch (error) {
+        console.error('Failed to load saved hall tickets:', error);
+      }
+    };
+
+    loadSavedTickets();
+  }, []);
+
   const student = students.find((s) => s.id === selectedStudent);
   const classStudents = selectedClass && selectedSection 
     ? students.filter((s) => s.class === selectedClass && s.section === selectedSection)
@@ -67,8 +80,8 @@ export default function HallTicket() {
   const expectedSubjectCount = Number(numSubjects) || 0;
   const hasRequiredSubjects = expectedSubjectCount > 0 && subjects.length === expectedSubjectCount;
 
-  const canPreviewSingle = Boolean(student && examName.trim() && hasRequiredSubjects);
-  const canPreviewClass = Boolean(selectedClass && selectedSection && examName.trim() && hasRequiredSubjects && classStudents.length > 0);
+  const canPreviewSingle = Boolean(student && examName.trim() && academicYear.trim() && hasRequiredSubjects);
+  const canPreviewClass = Boolean(selectedClass && selectedSection && examName.trim() && academicYear.trim() && hasRequiredSubjects && classStudents.length > 0);
   const canPreview = generationType === 'single' ? canPreviewSingle : canPreviewClass;
 
   // Load history when class is selected
@@ -81,19 +94,8 @@ export default function HallTicket() {
   const loadHistory = async () => {
     try {
       setLoadingHistory(true);
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(
-        `${API_BASE_URL}/hall-tickets/class/${selectedClass}/${selectedSection}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setSavedTickets(data);
-      }
+      const data = await hallTicketsApi.getByClass(selectedClass, selectedSection);
+      setSavedTickets(data);
     } catch (error) {
       console.error('Failed to load history:', error);
     } finally {
@@ -138,43 +140,54 @@ export default function HallTicket() {
   };
 
   const handleSaveTicket = async () => {
+    const className = generationType === 'class' ? selectedClass : student?.class;
+    const section = generationType === 'class' ? selectedSection : student?.section;
+    const studentIds = generationType === 'class'
+      ? classStudents.map((s) => s.id)
+      : student ? [student.id] : [];
+
+    if (!className || !section || !examName.trim() || !academicYear.trim() || !Array.isArray(subjects) || subjects.length === 0) {
+      alert('Please fill all required hall ticket fields before saving.');
+      return;
+    }
+
+    if (generationType === 'single' && studentIds.length === 0) {
+      alert('Please select a student before saving the hall ticket.');
+      return;
+    }
+
+    const normalizedSubjects = subjects.map((subject) => ({
+      name: subject.name,
+      date: subject.date,
+    }));
+
+    const validStudentIds = studentIds.filter((id) => /^[a-fA-F0-9]{24}$/.test(id));
+
+    const payload: any = {
+      className,
+      section,
+      examName,
+      academicYear,
+      subjects: normalizedSubjects,
+      generationType,
+    };
+
+    if (validStudentIds.length > 0) {
+      payload.studentIds = validStudentIds;
+    }
+
     try {
       setIsSaving(true);
-      const token = localStorage.getItem('authToken');
-      
-      const studentIds = generationType === 'class' 
-        ? classStudents.map(s => s.id)
-        : [];
 
-      const response = await fetch(`${API_BASE_URL}/hall-tickets`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          className: generationType === 'class' ? selectedClass : student?.class,
-          section: generationType === 'class' ? selectedSection : student?.section,
-          examName,
-          academicYear,
-          subjects,
-          generationType,
-          studentIds,
-        }),
-      });
+      const savedTicket = await hallTicketsApi.create(payload);
 
-      if (response.ok) {
-        const savedTicket = await response.json();
-        setSavedTickets([savedTicket, ...savedTickets]);
-        alert('Hall ticket saved successfully!');
-        // Reset form
-        setExamName('');
-        setNumSubjects('');
-        setSubjects([]);
-        setShowSubjectForm(false);
-      } else {
-        alert('Failed to save hall ticket');
-      }
+      setSavedTickets([savedTicket, ...savedTickets]);
+      alert('Hall ticket saved successfully!');
+      // Reset form
+      setExamName('');
+      setNumSubjects('');
+      setSubjects([]);
+      setShowSubjectForm(false);
     } catch (error) {
       console.error('Error saving hall ticket:', error);
       alert('Error saving hall ticket');
@@ -186,20 +199,9 @@ export default function HallTicket() {
   const handleDeleteTicket = async (ticketId: string) => {
     if (confirm('Are you sure you want to delete this hall ticket?')) {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_BASE_URL}/hall-tickets/${ticketId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          setSavedTickets(savedTickets.filter(t => t._id !== ticketId));
-          alert('Hall ticket deleted successfully');
-        } else {
-          alert('Failed to delete hall ticket');
-        }
+        await hallTicketsApi.delete(ticketId);
+        setSavedTickets(savedTickets.filter((t) => t._id !== ticketId));
+        alert('Hall ticket deleted successfully');
       } catch (error) {
         console.error('Error deleting hall ticket:', error);
         alert('Error deleting hall ticket');
@@ -208,10 +210,24 @@ export default function HallTicket() {
   };
 
   const handleLoadTicket = (ticket: SavedHallTicket) => {
+    setGenerationType(ticket.generationType);
     setExamName(ticket.examName);
     setAcademicYear(ticket.academicYear);
     setNumSubjects(ticket.subjects.length.toString());
     setSubjects(ticket.subjects.map((s, idx) => ({ ...s, id: idx.toString() })));
+
+    if (ticket.generationType === 'class') {
+      setSelectedClass(ticket.className);
+      setSelectedSection(ticket.section);
+      setSelectedStudent('');
+    } else {
+      setSelectedClass(ticket.className);
+      setSelectedSection(ticket.section);
+      if (ticket.studentIds && ticket.studentIds.length > 0) {
+        setSelectedStudent(ticket.studentIds[0]._id);
+      }
+    }
+
     setShowSubjectForm(true);
     setShowHistory(false);
   };
@@ -258,6 +274,36 @@ export default function HallTicket() {
           </Button>
         </div>
       </div>
+
+      {savedTickets.length > 0 && (
+        <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Saved Hall Tickets</h2>
+              <p className="text-sm text-muted-foreground">Recently created tickets are stored in the database.</p>
+            </div>
+            <span className="text-sm text-muted-foreground">{savedTickets.length} items</span>
+          </div>
+          <div className="space-y-3">
+            {savedTickets.map((ticket) => (
+              <div key={ticket._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-muted rounded-lg">
+                <div>
+                  <p className="font-medium text-foreground">{ticket.examName} • {ticket.className}-{ticket.section}</p>
+                  <p className="text-sm text-muted-foreground">{new Date(ticket.createdAt).toLocaleString()}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleLoadTicket(ticket)}>
+                    Load
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleDeleteTicket(ticket._id)} className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Student/Class Selection */}
       <div className="no-print">
@@ -602,12 +648,12 @@ function HallTicketItem({ student, examName, academicYear, subjects }: HallTicke
 
       <div className="mt-16 flex justify-between items-end text-sm relative z-10">
         <div className="text-center">
-          <div className="w-40 border-t border-foreground pt-2">
+          <div className="w-40 pt-2">
             <p className="font-medium">Invigilator</p>
           </div>
         </div>
         <div className="text-center">
-          <div className="w-40 border-t border-foreground pt-2">
+          <div className="w-40 pt-2">
             <img src="/sign.jpeg" alt="Principal Signature" className="mx-auto h-10 object-contain" style={{ WebkitPrintColorAdjust: 'exact' }} />
             <p className="font-medium">Principal</p>
           </div>

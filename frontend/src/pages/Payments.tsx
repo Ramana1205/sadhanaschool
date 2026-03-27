@@ -47,10 +47,12 @@ export default function Payments() {
 
       // Keep local state in sync for receipts / balance
       addPayment({
+        id: created._id || created.id || Date.now().toString(),
         studentId: selectedStudent.id,
         amount: Number(amount),
         mode,
-        date: created.date || new Date().toISOString(),
+        date: created.date ? new Date(created.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        receiptNumber: created.receiptNumber,
       });
 
       setRecentPayment(created);

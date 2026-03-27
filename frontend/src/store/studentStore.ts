@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Student, Payment } from '@/types';
 import { generateReceiptNumber } from '@/types';
+import { studentsApi, paymentsApi } from '@/lib/api';
 
 interface StudentState {
   students: Student[];
@@ -8,7 +9,9 @@ interface StudentState {
   addStudent: (student: Omit<Student, 'id' | 'createdAt'>) => void;
   updateStudent: (id: string, data: Partial<Student>) => void;
   deleteStudent: (id: string) => void;
-  addPayment: (payment: Omit<Payment, 'id' | 'receiptNumber'>) => void;
+  addPayment: (payment: Omit<Payment, 'id'> & Partial<Pick<Payment, 'id' | 'receiptNumber'>>) => void;
+  loadStudents: () => Promise<void>;
+  loadPayments: () => Promise<void>;
   getStudentPayments: (studentId: string) => Payment[];
   getTotalPaid: (studentId: string) => number;
   getRemainingDue: (studentId: string) => number;
@@ -17,32 +20,33 @@ interface StudentState {
   getClassDistribution: () => { className: string; count: number }[];
 }
 
-const SAMPLE_STUDENTS: Student[] = [
-  { id: '1', name: 'Aarav Sharma', class: 'Nursery', section: 'A', rollNumber: '001', contactNumber: '9876543210', address: '123 Main Street, New Delhi', totalFee: 30000, createdAt: '2024-04-01' },
-  { id: '2', name: 'Priya Patel', class: 'Nursery', section: 'A', rollNumber: '002', contactNumber: '9876543211', address: '456 Park Road, Mumbai', totalFee: 30000, createdAt: '2024-04-01' },
-  { id: '3', name: 'Rohan Kumar', class: 'LKG', section: 'A', rollNumber: '001', contactNumber: '9876543212', address: '789 Oak Avenue, Bangalore', totalFee: 32000, createdAt: '2024-04-01' },
-  { id: '4', name: 'Ananya Singh', class: 'LKG', section: 'B', rollNumber: '002', contactNumber: '9876543213', address: '321 Elm Street, Chennai', totalFee: 32000, createdAt: '2024-04-01' },
-  { id: '5', name: 'Vikram Reddy', class: 'UKG', section: 'A', rollNumber: '001', contactNumber: '9876543214', address: '654 Pine Lane, Hyderabad', totalFee: 34000, createdAt: '2024-04-01' },
-  { id: '6', name: 'Sanya Gupta', class: '1st', section: 'A', rollNumber: '001', contactNumber: '9876543215', address: '111 Rose St, Pune', totalFee: 36000, createdAt: '2024-04-01' },
-  { id: '7', name: 'Arjun Nair', class: '2nd', section: 'A', rollNumber: '001', contactNumber: '9876543216', address: '222 Lily Rd, Kochi', totalFee: 38000, createdAt: '2024-04-01' },
-  { id: '8', name: 'Meera Joshi', class: '3rd', section: 'A', rollNumber: '001', contactNumber: '9876543217', address: '333 Tulip Ave, Jaipur', totalFee: 40000, createdAt: '2024-04-01' },
-  { id: '9', name: 'Kabir Verma', class: '5th', section: 'A', rollNumber: '001', contactNumber: '9876543218', address: '444 Jasmine Ln, Lucknow', totalFee: 42000, createdAt: '2024-04-01' },
-  { id: '10', name: 'Diya Chauhan', class: '8th', section: 'A', rollNumber: '001', contactNumber: '9876543219', address: '555 Orchid Blvd, Ahmedabad', totalFee: 45000, createdAt: '2024-04-01' },
-  { id: '11', name: 'Ishaan Malhotra', class: '10th', section: 'A', rollNumber: '001', contactNumber: '9876543220', address: '666 Lotus Dr, Chandigarh', totalFee: 50000, createdAt: '2024-04-01' },
-  { id: '12', name: 'Kavya Rao', class: '10th', section: 'B', rollNumber: '002', contactNumber: '9876543221', address: '777 Marigold Way, Mysore', totalFee: 50000, createdAt: '2024-04-01' },
-];
+type PaymentInput = Omit<Payment, 'id'> & Partial<Pick<Payment, 'id' | 'receiptNumber'>>;
 
-const SAMPLE_PAYMENTS: Payment[] = [
-  { id: 'p1', studentId: '1', amount: 15000, mode: 'online', date: '2024-06-15', receiptNumber: 'RCP-001' },
-  { id: 'p2', studentId: '2', amount: 30000, mode: 'cash', date: '2024-06-20', receiptNumber: 'RCP-002' },
-  { id: 'p3', studentId: '3', amount: 20000, mode: 'online', date: '2024-07-01', receiptNumber: 'RCP-003' },
-  { id: 'p4', studentId: '6', amount: 36000, mode: 'cash', date: '2024-08-10', receiptNumber: 'RCP-004' },
-  { id: 'p5', studentId: '11', amount: 25000, mode: 'online', date: '2024-09-01', receiptNumber: 'RCP-005' },
-];
+const normalizeStudent = (student: any): Student => ({
+  id: student._id || student.id || Date.now().toString(),
+  name: student.name || '',
+  class: student.class || '',
+  section: student.section || '',
+  rollNumber: student.rollNumber || '',
+  contactNumber: student.contactNumber || '',
+  address: student.address || '',
+  totalFee: Number(student.totalFee || 0),
+  photo: student.photo,
+  createdAt: student.createdAt || new Date().toISOString().split('T')[0],
+});
+
+const normalizePayment = (payment: any): Payment => ({
+  id: payment._id || payment.id || Date.now().toString(),
+  studentId: typeof payment.studentId === 'object' ? payment.studentId._id : payment.studentId,
+  amount: Number(payment.amount || 0),
+  mode: payment.mode === 'online' ? 'online' : 'cash',
+  date: payment.date ? new Date(payment.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+  receiptNumber: payment.receiptNumber || generateReceiptNumber(),
+});
 
 export const useStudentStore = create<StudentState>()((set, get) => ({
-  students: SAMPLE_STUDENTS,
-  payments: SAMPLE_PAYMENTS,
+  students: [],
+  payments: [],
   addStudent: (student) => {
     const newStudent: Student = {
       ...student,
@@ -62,13 +66,31 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
       payments: state.payments.filter((p) => p.studentId !== id),
     }));
   },
-  addPayment: (payment) => {
+  addPayment: (payment: PaymentInput) => {
     const newPayment: Payment = {
       ...payment,
-      id: Date.now().toString(),
-      receiptNumber: generateReceiptNumber(),
-    };
+      id: payment.id || Date.now().toString(),
+      receiptNumber: payment.receiptNumber || generateReceiptNumber(),
+    } as Payment;
     set((state) => ({ payments: [...state.payments, newPayment] }));
+  },
+  loadStudents: async () => {
+    try {
+      const data = (await studentsApi.getAll()) as any[];
+      const mapped = data.map(normalizeStudent);
+      set({ students: mapped });
+    } catch (error) {
+      console.error('Failed to load students', error);
+    }
+  },
+  loadPayments: async () => {
+    try {
+      const data = (await paymentsApi.getAll()) as any[];
+      const mapped = data.map(normalizePayment);
+      set({ payments: mapped });
+    } catch (error) {
+      console.error('Failed to load payments', error);
+    }
   },
   getStudentPayments: (studentId) => get().payments.filter((p) => p.studentId === studentId),
   getTotalPaid: (studentId) =>

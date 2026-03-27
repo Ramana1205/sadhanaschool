@@ -53,7 +53,7 @@ export default function Login() {
             <div className="h-14 w-14 rounded-xl bg-accent flex items-center justify-center">
               <GraduationCap className="h-8 w-8 text-accent-foreground" />
             </div>
-            <h1 className="text-4xl font-bold font-display">Sadhana Memorial</h1>
+            <h1 className="text-4xl font-bold font-display">SADHANA MEMORIAL SCHOOL</h1>
           </div>
           <p className="text-lg text-primary-foreground/80 leading-relaxed">
             A complete school management solution. Manage students, fees, hall tickets, report cards, and more — all in one place.
@@ -76,7 +76,7 @@ export default function Login() {
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary mb-3">
               <GraduationCap className="h-7 w-7 text-primary-foreground" />
             </div>
-            <h2 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial</h2>
+            <h2 className="text-2xl font-bold font-display text-foreground">SADHANA MEMORIAL SCHOOL</h2>
           </div>
 
           <div className="mb-6">

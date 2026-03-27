@@ -120,7 +120,23 @@ export const studentsApi = {
   delete: (id: string) =>
     makeRequest(`/students/${id}`, { method: 'DELETE' }),
 };
+// ================= HALL TICKETS =================
+export const hallTicketsApi = {
+  getAll: () =>
+    makeRequest('/hall-tickets', { method: 'GET' }),
 
+  getByClass: (className: string, section: string) =>
+    makeRequest(`/hall-tickets/class/${encodeURIComponent(className)}/${encodeURIComponent(section)}`, { method: 'GET' }),
+
+  create: (data: any) =>
+    makeRequest('/hall-tickets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    makeRequest(`/hall-tickets/${id}`, { method: 'DELETE' }),
+};
 // ================= PAYMENTS =================
 export const paymentsApi = {
   getAll: () =>

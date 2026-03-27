@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Printer } from 'lucide-react';
 // logo file placed in public folder
 // use jpg if available, otherwise png fallback
-const logoUrl = '/logo.jpg';
+const logoUrl = '/logo1.jpeg';
 import StudentFilter from '@/components/StudentFilter';
 
 export default function Receipt() {
@@ -149,7 +149,7 @@ export default function Receipt() {
                 <p className="text-muted-foreground text-xs">This is a computer-generated receipt.</p>
               </div>
               <div className="text-center">
-                <div className="w-40 border-t border-foreground pt-2">
+                <div className="w-40 pt-2">
                   <img src="/sign.jpeg" alt="Signature" className="mx-auto h-12 object-contain" style={{ WebkitPrintColorAdjust: 'exact' }} />
                   <p className="font-medium mt-1">Authorized Signature</p>
                 </div>

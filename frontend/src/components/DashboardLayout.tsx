@@ -64,7 +64,7 @@ export default function DashboardLayout() {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary overflow-hidden">
-            <img src="/logo.jpg" alt="School Logo" className="h-8 w-8 object-contain" />
+            <img src="/logo1.jpeg" alt="School Logo" className="h-8 w-8 object-contain" />
           </div>
           <div>
             <h1 className="text-base font-bold text-sidebar-foreground font-display">Sadhana Memorial School</h1>
