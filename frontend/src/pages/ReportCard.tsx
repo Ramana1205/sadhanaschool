@@ -106,7 +106,7 @@ export default function ReportCard() {
                 <GraduationCap className="h-8 w-8 text-primary-foreground" />
               </div>
               <h1 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial School</h1>
-              <p className="text-sm text-muted-foreground">123 Education Lane, Knowledge City</p>
+              <p className="text-sm text-muted-foreground">Sanjay Gandhi Nagar, Shapur</p>
               <div className="mt-3 h-1 w-32 mx-auto bg-primary rounded-full" />
             </div>
 

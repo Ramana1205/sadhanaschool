@@ -88,7 +88,7 @@ export default function Receipt() {
                 />
               </div>
               <h1 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial School</h1>
-              <p className="text-sm text-muted-foreground">123 Education Lane, Knowledge City — Phone: (555) 123-4567</p>
+              <p className="text-sm text-muted-foreground">Sanjay Gandhi Nagar, Shapur — Phone: 9848623438</p>
               <div className="mt-4 h-1 w-32 mx-auto bg-primary rounded-full" />
             </div>
 
