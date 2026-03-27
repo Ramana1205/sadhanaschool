@@ -205,13 +205,14 @@ export default function ReportCard() {
 
             <div className="mt-12 flex justify-between items-end text-sm relative z-10">
               <div className="text-center">
-                <div className="w-40 border-t border-foreground pt-2">
+                <div className="w-40 border-b border-foreground pb-2">
                   <p className="font-medium">Class Teacher</p>
                 </div>
               </div>
               <div className="text-center">
-                <div className="w-40 border-t border-foreground pt-2">
-                  <img src="/sign.jpeg" alt="Principal Signature" className="mx-auto h-10 object-contain" style={{ WebkitPrintColorAdjust: 'exact' }} />
+                <div className="w-40">
+                  <img src="/sign.jpeg" alt="Principal Signature" className="mx-auto h-10 object-contain mb-1" style={{ WebkitPrintColorAdjust: 'exact' }} />
+                  <div className="border-b border-foreground mb-1" />
                   <p className="font-medium">Principal</p>
                 </div>
               </div>

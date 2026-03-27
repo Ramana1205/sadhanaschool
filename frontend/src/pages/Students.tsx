@@ -21,30 +21,25 @@ const emptyForm = { name: '', class: '', section: '', rollNumber: '', contactNum
 export default function Students() {
   const { students, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const user = useAuthStore((s) => s.user);
-  useEffect(() => {
+
   const loadStudents = async () => {
     try {
       const data = await studentsApi.getAll();
 
-      // ✅ Replace store completely
       const mapped = data.map((s: any) => ({
         ...s,
         id: s._id,
       }));
 
-      // ❗ Clear first (IMPORTANT)
-      localStorage.removeItem('student-storage');
-
-      mapped.forEach((s) => addStudent(s));
-
+      useStudentStore.setState({ students: mapped });
     } catch (err) {
       console.error('Failed to fetch students', err);
     }
   };
 
-  loadStudents();
-}, []);
-  const isAdmin = user?.role === 'admin';
+  useEffect(() => {
+    loadStudents();
+  }, []);
 
   const [search, setSearch] = useState('');
   const [filterClass, setFilterClass] = useState('all');
@@ -107,26 +102,13 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   try {
     if (editing) {
-      // ✅ Update in backend
       await studentsApi.update(editing.id, form);
-
-      // ✅ Update local store
-      updateStudent(editing.id, form);
     } else {
-      // ✅ Create in backend
-      const saved = await studentsApi.create(form);
-
-      // ✅ Add to local store (IMPORTANT: map _id → id)
-      addStudent({
-        ...saved,
-        id: saved._id,
-      });
+      await studentsApi.create(form);
     }
 
+    await loadStudents();
     setDialogOpen(false);
-    // after setDialogOpen(false)
-
-
   } catch (err) {
     console.error('Student save failed', err);
   }
@@ -235,14 +217,19 @@ const handleSubmit = async (e: React.FormEvent) => {
                               <Button variant="ghost" size="icon" onClick={() => openEdit(s)}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={async () => {
-  try {
-    await studentsApi.delete(s.id);
-    deleteStudent(s.id);
-  } catch (err) {
-    console.error('Delete failed', err);
-  }
-}} className="text-destructive hover:text-destructive">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={async () => {
+                                  try {
+                                    await studentsApi.delete(s.id);
+                                    await loadStudents();
+                                  } catch (err) {
+                                    console.error('Delete failed', err);
+                                  }
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>

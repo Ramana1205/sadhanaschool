@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Student, Payment } from '@/types';
 import { generateReceiptNumber } from '@/types';
 
@@ -41,66 +40,61 @@ const SAMPLE_PAYMENTS: Payment[] = [
   { id: 'p5', studentId: '11', amount: 25000, mode: 'online', date: '2024-09-01', receiptNumber: 'RCP-005' },
 ];
 
-export const useStudentStore = create<StudentState>()(
-  persist(
-    (set, get) => ({
-      students: SAMPLE_STUDENTS,
-      payments: SAMPLE_PAYMENTS,
-      addStudent: (student) => {
-        const newStudent: Student = {
-          ...student,
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString().split('T')[0],
-        };
-        set((state) => ({ students: [...state.students, newStudent] }));
-      },
-      updateStudent: (id, data) => {
-        set((state) => ({
-          students: state.students.map((s) => (s.id === id ? { ...s, ...data } : s)),
-        }));
-      },
-      deleteStudent: (id) => {
-        set((state) => ({
-          students: state.students.filter((s) => s.id !== id),
-          payments: state.payments.filter((p) => p.studentId !== id),
-        }));
-      },
-      addPayment: (payment) => {
-        const newPayment: Payment = {
-          ...payment,
-          id: Date.now().toString(),
-          receiptNumber: generateReceiptNumber(),
-        };
-        set((state) => ({ payments: [...state.payments, newPayment] }));
-      },
-      getStudentPayments: (studentId) => get().payments.filter((p) => p.studentId === studentId),
-      getTotalPaid: (studentId) =>
-        get().payments.filter((p) => p.studentId === studentId).reduce((sum, p) => sum + p.amount, 0),
-      getRemainingDue: (studentId) => {
-        const student = get().students.find((s) => s.id === studentId);
-        if (!student) return 0;
-        return student.totalFee - get().getTotalPaid(studentId);
-      },
-      getTotalFeesCollected: () => get().payments.reduce((sum, p) => sum + p.amount, 0),
-      getTotalPendingFees: () => {
-        const state = get();
-        return state.students.reduce((sum, s) => {
-          const paid = state.payments.filter((p) => p.studentId === s.id).reduce((a, p) => a + p.amount, 0);
-          return sum + (s.totalFee - paid);
-        }, 0);
-      },
-      getClassDistribution: () => {
-        const state = get();
-        const classMap = new Map<string, number>();
-        state.students.forEach((s) => {
-          classMap.set(s.class, (classMap.get(s.class) || 0) + 1);
-        });
-        const order = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
-        return order
-          .filter((c) => classMap.has(c))
-          .map((c) => ({ className: c, count: classMap.get(c)! }));
-      },
-    }),
-    { name: 'student-storage' }
-  )
-);
+export const useStudentStore = create<StudentState>()((set, get) => ({
+  students: SAMPLE_STUDENTS,
+  payments: SAMPLE_PAYMENTS,
+  addStudent: (student) => {
+    const newStudent: Student = {
+      ...student,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    set((state) => ({ students: [...state.students, newStudent] }));
+  },
+  updateStudent: (id, data) => {
+    set((state) => ({
+      students: state.students.map((s) => (s.id === id ? { ...s, ...data } : s)),
+    }));
+  },
+  deleteStudent: (id) => {
+    set((state) => ({
+      students: state.students.filter((s) => s.id !== id),
+      payments: state.payments.filter((p) => p.studentId !== id),
+    }));
+  },
+  addPayment: (payment) => {
+    const newPayment: Payment = {
+      ...payment,
+      id: Date.now().toString(),
+      receiptNumber: generateReceiptNumber(),
+    };
+    set((state) => ({ payments: [...state.payments, newPayment] }));
+  },
+  getStudentPayments: (studentId) => get().payments.filter((p) => p.studentId === studentId),
+  getTotalPaid: (studentId) =>
+    get().payments.filter((p) => p.studentId === studentId).reduce((sum, p) => sum + p.amount, 0),
+  getRemainingDue: (studentId) => {
+    const student = get().students.find((s) => s.id === studentId);
+    if (!student) return 0;
+    return student.totalFee - get().getTotalPaid(studentId);
+  },
+  getTotalFeesCollected: () => get().payments.reduce((sum, p) => sum + p.amount, 0),
+  getTotalPendingFees: () => {
+    const state = get();
+    return state.students.reduce((sum, s) => {
+      const paid = state.payments.filter((p) => p.studentId === s.id).reduce((a, p) => a + p.amount, 0);
+      return sum + (s.totalFee - paid);
+    }, 0);
+  },
+  getClassDistribution: () => {
+    const state = get();
+    const classMap = new Map<string, number>();
+    state.students.forEach((s) => {
+      classMap.set(s.class, (classMap.get(s.class) || 0) + 1);
+    });
+    const order = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+    return order
+      .filter((c) => classMap.has(c))
+      .map((c) => ({ className: c, count: classMap.get(c)! }));
+  },
+}));

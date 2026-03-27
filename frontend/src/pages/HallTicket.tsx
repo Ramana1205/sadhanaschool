@@ -603,7 +603,6 @@ function HallTicketItem({ student, examName, academicYear, subjects }: HallTicke
       <div className="mt-16 flex justify-between items-end text-sm relative z-10">
         <div className="text-center">
           <div className="w-40 border-t border-foreground pt-2">
-            <img src="/sign.jpeg" alt="Invigilator Signature" className="mx-auto h-10 object-contain" style={{ WebkitPrintColorAdjust: 'exact' }} />
             <p className="font-medium">Invigilator</p>
           </div>
         </div>
