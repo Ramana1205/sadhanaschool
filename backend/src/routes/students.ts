@@ -33,8 +33,9 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
 router.post('/', authenticateToken, async (req, res, next) => {
   try {
     const { name, class: className, section, rollNumber, contactNumber, address, totalFee, photo } = req.body;
+    const parsedTotalFee = totalFee !== undefined && totalFee !== null ? Number(totalFee) : undefined;
 
-    if (!name || !className || !section || !rollNumber || !contactNumber || !address || !totalFee) {
+    if (!name || !className || !section || !rollNumber || !contactNumber || !address || parsedTotalFee === undefined || Number.isNaN(parsedTotalFee)) {
       throw new AppError(400, 'Missing required fields');
     }
 
@@ -50,7 +51,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
       rollNumber,
       contactNumber,
       address,
-      totalFee,
+      totalFee: parsedTotalFee,
       photo: photo || undefined,
     });
 
@@ -65,10 +66,15 @@ router.post('/', authenticateToken, async (req, res, next) => {
 router.put('/:id', authenticateToken, async (req, res, next) => {
   try {
     const { name, class: className, section, rollNumber, contactNumber, address, totalFee, photo } = req.body;
+    const parsedTotalFee = totalFee !== undefined && totalFee !== null ? Number(totalFee) : undefined;
 
     const student = await Student.findById(req.params.id);
     if (!student) {
       throw new AppError(404, 'Student not found');
+    }
+
+    if (parsedTotalFee !== undefined && Number.isNaN(parsedTotalFee)) {
+      throw new AppError(400, 'Invalid total fee');
     }
 
     // Check if rollNumber is being updated and if it already exists
@@ -88,7 +94,7 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
         rollNumber: rollNumber || student.rollNumber,
         contactNumber: contactNumber || student.contactNumber,
         address: address || student.address,
-        totalFee: totalFee !== undefined ? totalFee : student.totalFee,
+        totalFee: parsedTotalFee !== undefined ? parsedTotalFee : student.totalFee,
         photo: photo !== undefined ? photo : student.photo,
       },
       { new: true, runValidators: true }

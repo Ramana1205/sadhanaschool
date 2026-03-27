@@ -29,6 +29,7 @@ export default function ReportCard() {
   const totalMax = subjects.reduce((sum, s) => sum + s.maxMarks, 0);
   const percentage = totalMax > 0 ? (totalObtained / totalMax) * 100 : 0;
   const grade = getGrade(percentage);
+  const allSubjectsPassed = subjects.every((sub) => sub.maxMarks > 0 && (sub.obtainedMarks / sub.maxMarks) * 100 >= 50);
 
   const addSubject = () => setSubjects([...subjects, { name: '', maxMarks: 100, obtainedMarks: 0 }]);
   const removeSubject = (i: number) => setSubjects(subjects.filter((_, idx) => idx !== i));
@@ -190,8 +191,8 @@ export default function ReportCard() {
               </div>
               <div className="border border-border rounded-lg p-3">
                 <p className="text-xs text-muted-foreground">Result</p>
-                <p className={`text-xl font-bold ${percentage >= 50 ? 'text-success' : 'text-destructive'}`}>
-                  {percentage >= 50 ? 'PASS' : 'FAIL'}
+                <p className={`text-xl font-bold ${allSubjectsPassed ? 'text-success' : 'text-destructive'}`}>
+                  {allSubjectsPassed ? 'PASS' : 'FAIL'}
                 </p>
               </div>
             </div>

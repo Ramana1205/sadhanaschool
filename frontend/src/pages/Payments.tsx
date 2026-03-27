@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentStore } from '@/store/studentStore';
-import { paymentsApi } from '@/lib/api';
+import { paymentsApi, studentsApi } from '@/lib/api';
 import StudentFilter from '@/components/StudentFilter';
 
 export default function Payments() {
@@ -10,10 +10,24 @@ export default function Payments() {
 
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [amount, setAmount] = useState('');
-  const [mode, setMode] = useState('cash');
+  const [mode, setMode] = useState<'cash' | 'online'>('cash');
   const [recentPayment, setRecentPayment] = useState<any>(null);
 
   const selectedStudent = students.find((s) => s.id === selectedStudentId);
+
+  useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const data = (await studentsApi.getAll()) as any[];
+        const mapped = data.map((s: any) => ({ ...s, id: s._id }));
+        useStudentStore.setState({ students: mapped });
+      } catch (error) {
+        console.error('Failed to load students for payments', error);
+      }
+    };
+
+    loadStudents();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +38,12 @@ export default function Payments() {
     }
 
     try {
-      const created = await paymentsApi.create({
+      const created = (await paymentsApi.create({
         studentId: selectedStudent.id,
         amount: Number(amount),
         mode,
         date: new Date().toISOString(),
-      });
+      })) as any;
 
       // Keep local state in sync for receipts / balance
       addPayment({
@@ -74,7 +88,7 @@ export default function Payments() {
         {/* MODE */}
         <select
           value={mode}
-          onChange={(e) => setMode(e.target.value)}
+          onChange={(e) => setMode(e.target.value as 'cash' | 'online')}
           className="w-full p-2 border rounded"
         >
           <option value="cash">Cash</option>

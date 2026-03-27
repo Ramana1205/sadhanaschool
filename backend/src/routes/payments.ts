@@ -1,4 +1,5 @@
 import express from 'express';
+import { isValidObjectId } from 'mongoose';
 import Payment, { IPayment } from '../models/Payment.js';
 import Student from '../models/Student.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -29,6 +30,10 @@ router.get('/', authenticateToken, async (req, res, next) => {
 // Get payments by student ID
 router.get('/student/:studentId', authenticateToken, async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.studentId)) {
+      throw new AppError(400, 'Invalid student ID');
+    }
+
     const payments = await Payment.find({ studentId: req.params.studentId })
       .populate('studentId', 'name rollNumber')
       .sort({ date: -1 });
@@ -45,6 +50,10 @@ router.post('/', authenticateToken, async (req, res, next) => {
 
     if (!studentId || !amount || !mode) {
       throw new AppError(400, 'Missing required fields');
+    }
+
+    if (!isValidObjectId(studentId)) {
+      throw new AppError(400, 'Invalid student ID');
     }
 
     const student = await Student.findById(studentId);
