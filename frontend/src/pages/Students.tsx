@@ -12,6 +12,17 @@ import { ALL_CLASSES } from '@/components/StudentFilter';
 import { studentsApi } from '@/lib/api';
 import { useEffect } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
+const getPhotoSrc = (photo?: string) => {
+  if (!photo) return undefined;
+  if (photo.startsWith('data:') || photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('/')) {
+    return photo;
+  }
+  // if backend returns relative path like 'uploads/abc.jpg'
+  return `${API_BASE_URL}/${photo}`;
+};
+
 const SECTIONS = ['A', 'B', 'C', 'D'];
 
 type SortOption = 'name-asc' | 'name-desc' | 'roll-asc' | 'roll-desc';
@@ -200,7 +211,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <tr key={s.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3 font-medium flex items-center gap-3">
                           {s.photo ? (
-                            <img src={s.photo} alt="" className="h-8 w-8 rounded-full object-cover" />
+                            <img src={getPhotoSrc(s.photo)} alt={s.name} className="h-8 w-8 rounded-full object-cover" />
                           ) : (
                             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                               {s.name.charAt(0)}

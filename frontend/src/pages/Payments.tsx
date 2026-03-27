@@ -1,18 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useStudentStore } from '@/store/studentStore';
 import { paymentsApi } from '@/lib/api';
+import StudentFilter from '@/components/StudentFilter';
 
 export default function Payments() {
-  const { students } = useStudentStore();
+  const { students, addPayment } = useStudentStore();
 
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [amount, setAmount] = useState('');
   const [mode, setMode] = useState('cash');
 
-  // 🔥 Get full student object using _id
-  const selectedStudent = students.find(
-    (s) => s._id === selectedStudentId
-  );
+  const selectedStudent = students.find((s) => s.id === selectedStudentId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,16 +21,23 @@ export default function Payments() {
     }
 
     try {
-      await paymentsApi.create({
-        studentId: selectedStudent._id, // ✅ FIXED
+      const created = await paymentsApi.create({
+        studentId: selectedStudent.id,
         amount: Number(amount),
         mode,
         date: new Date().toISOString(),
       });
 
+      // Keep local state in sync for receipts / balance
+      addPayment({
+        studentId: selectedStudent.id,
+        amount: Number(amount),
+        mode,
+        date: created.date || new Date().toISOString(),
+      });
+
       alert('Payment added successfully');
 
-      // reset form
       setSelectedStudentId('');
       setAmount('');
       setMode('cash');
@@ -47,20 +52,11 @@ export default function Payments() {
       <h2 className="text-xl font-bold mb-4">Add Payment</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
-        {/* STUDENT SELECT */}
-        <select
-          value={selectedStudentId}
-          onChange={(e) => setSelectedStudentId(e.target.value)}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">Select Student</option>
-          {students.map((s) => (
-            <option key={s._id} value={s._id}>
-              {s.name} ({s.rollNumber})
-            </option>
-          ))}
-        </select>
+        <StudentFilter
+          selectedStudent={selectedStudentId}
+          onSelectStudent={setSelectedStudentId}
+          label="Select Student"
+        />
 
         {/* AMOUNT */}
         <input
