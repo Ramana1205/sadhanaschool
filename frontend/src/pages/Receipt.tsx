@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useStudentStore } from '@/store/studentStore';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,9 +12,17 @@ import StudentFilter from '@/components/StudentFilter';
 
 export default function Receipt() {
   const { students, payments, getTotalPaid, getRemainingDue } = useStudentStore();
+  const [searchParams] = useSearchParams();
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
   const printRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const studentId = searchParams.get('studentId');
+    const paymentId = searchParams.get('paymentId');
+    if (studentId) setSelectedStudent(studentId);
+    if (paymentId) setSelectedPayment(paymentId);
+  }, [searchParams]);
 
   const studentPayments = payments.filter((p) => p.studentId === selectedStudent);
   const payment = payments.find((p) => p.id === selectedPayment);

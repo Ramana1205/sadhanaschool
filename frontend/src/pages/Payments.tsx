@@ -1,14 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStudentStore } from '@/store/studentStore';
 import { paymentsApi } from '@/lib/api';
 import StudentFilter from '@/components/StudentFilter';
 
 export default function Payments() {
+  const navigate = useNavigate();
   const { students, addPayment } = useStudentStore();
 
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [amount, setAmount] = useState('');
   const [mode, setMode] = useState('cash');
+  const [recentPayment, setRecentPayment] = useState<any>(null);
 
   const selectedStudent = students.find((s) => s.id === selectedStudentId);
 
@@ -36,6 +39,7 @@ export default function Payments() {
         date: created.date || new Date().toISOString(),
       });
 
+      setRecentPayment(created);
       alert('Payment added successfully');
 
       setSelectedStudentId('');
@@ -84,6 +88,29 @@ export default function Payments() {
           Submit Payment
         </button>
       </form>
+
+      {recentPayment && (
+        <div className="mt-6 p-4 border border-border rounded-lg bg-surface">
+          <p className="mb-2 text-sm text-foreground">Payment processed: {recentPayment.receiptNumber || '(new)'}.</p>
+          <p className="text-sm text-muted-foreground mb-3">Do you want to print the receipt now?</p>
+          <div className="flex gap-2">
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded"
+              onClick={() => {
+                navigate(`/receipt?studentId=${encodeURIComponent(selectedStudentId)}&paymentId=${encodeURIComponent(recentPayment._id || recentPayment.id || '')}`);
+              }}
+            >
+              Print Receipt
+            </button>
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded"
+              onClick={() => setRecentPayment(null)}
+            >
+              No Thanks
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

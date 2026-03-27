@@ -205,7 +205,9 @@ export default function ReportCard() {
 
             <div className="mt-12 flex justify-between items-end text-sm relative z-10">
               <div className="text-center">
-                <div className="w-40 border-b border-foreground pb-2">
+                <div className="w-40">
+                  <div className="h-10 mb-1" />
+                  <div className="border-b border-foreground mb-1" />
                   <p className="font-medium">Class Teacher</p>
                 </div>
               </div>
