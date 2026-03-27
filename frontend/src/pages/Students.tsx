@@ -21,6 +21,7 @@ const emptyForm = { name: '', class: '', section: '', rollNumber: '', contactNum
 export default function Students() {
   const { students, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'admin';
 
   const loadStudents = async () => {
     try {
