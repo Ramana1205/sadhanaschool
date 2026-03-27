@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ALL_CLASSES } from '@/components/StudentFilter';
 import { studentsApi } from '@/lib/api';
+import { useEffect } from 'react';
 
 const SECTIONS = ['A', 'B', 'C', 'D'];
 
@@ -20,6 +21,29 @@ const emptyForm = { name: '', class: '', section: '', rollNumber: '', contactNum
 export default function Students() {
   const { students, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const user = useAuthStore((s) => s.user);
+  useEffect(() => {
+  const loadStudents = async () => {
+    try {
+      const data = await studentsApi.getAll();
+
+      // ✅ Replace store completely
+      const mapped = data.map((s: any) => ({
+        ...s,
+        id: s._id,
+      }));
+
+      // ❗ Clear first (IMPORTANT)
+      localStorage.removeItem('student-storage');
+
+      mapped.forEach((s) => addStudent(s));
+
+    } catch (err) {
+      console.error('Failed to fetch students', err);
+    }
+  };
+
+  loadStudents();
+}, []);
   const isAdmin = user?.role === 'admin';
 
   const [search, setSearch] = useState('');
@@ -100,6 +124,9 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     setDialogOpen(false);
+    // after setDialogOpen(false)
+
+
   } catch (err) {
     console.error('Student save failed', err);
   }
@@ -208,7 +235,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                               <Button variant="ghost" size="icon" onClick={() => openEdit(s)}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => deleteStudent(s.id)} className="text-destructive hover:text-destructive">
+                              <Button variant="ghost" size="icon" onClick={async () => {
+  try {
+    await studentsApi.delete(s.id);
+    deleteStudent(s.id);
+  } catch (err) {
+    console.error('Delete failed', err);
+  }
+}} className="text-destructive hover:text-destructive">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
