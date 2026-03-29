@@ -198,10 +198,11 @@ export default function Bonafide() {
           <div className="space-y-5 text-base leading-8 text-foreground">
             <p>
               This is to certify that <span className="font-semibold">{honorific} {student.name}</span> {gender === 'male' ? 'S/o' : 'D/o'}{' '}
+              <span className="hidden print-inline">{parentName || '________________'}</span>
               <input
                 value={parentName}
                 onChange={(e) => setParentName(e.target.value)}
-                className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="Parent name"
               />
               {' '}is/was a bonafide student of SADHANA MEMORIAL SCHOOL.
@@ -209,17 +210,19 @@ export default function Bonafide() {
 
             <p>
               {pronoun} studied from Class <span className="font-semibold">{student.class}</span> (Year{' '}
+              <span className="hidden print-inline">{fromYear || '____'}</span>
               <input
                 value={fromYear}
                 onChange={(e) => setFromYear(e.target.value)}
-                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="From year"
               />
               ) to Class <span className="font-semibold">{student.class}</span> (Year{' '}
+              <span className="hidden print-inline">{toYear || '____'}</span>
               <input
                 value={toYear}
                 onChange={(e) => setToYear(e.target.value)}
-                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="To year"
               />
               ).
@@ -231,11 +234,12 @@ export default function Bonafide() {
 
             <p>
               {possessive} date of birth as per school records is{' '}
+              <span className="hidden print-inline">{dateOfBirth || '__________'}</span>
               <input
                 type="date"
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
-                className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
               />
               .
             </p>
@@ -243,28 +247,31 @@ export default function Bonafide() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
               <div>
                 <p className="text-sm text-muted-foreground">Admission No.</p>
+                <span className="hidden print-inline">{admissionNumber || '__________'}</span>
                 <input
                   value={admissionNumber}
                   onChange={(e) => setAdmissionNumber(e.target.value)}
-                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="Admission No."
                 />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Aadhar No.</p>
+                <span className="hidden print-inline">{aadharNumber || '__________'}</span>
                 <input
                   value={aadharNumber}
                   onChange={(e) => setAadharNumber(e.target.value)}
-                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="Aadhar No."
                 />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">PEN No.</p>
+                <span className="hidden print-inline">{penNumber || '__________'}</span>
                 <input
                   value={penNumber}
                   onChange={(e) => setPenNumber(e.target.value)}
-                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none"
+                  className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="PEN No."
                 />
               </div>

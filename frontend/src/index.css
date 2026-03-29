@@ -115,13 +115,20 @@
   .print-only {
     display: none;
   }
+  .print-inline {
+    display: none;
+  }
 }
 
 @media print {
   body {
+    margin: 0 !important;
     background: white !important;
     color: black !important;
     font-size: 12pt;
+  }
+  .print-inline {
+    display: inline !important;
   }
   .no-print {
     display: none !important;
@@ -130,10 +137,11 @@
     display: block !important;
   }
   .print-container {
-    width: 210mm;
-    min-height: 297mm;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     margin: 0 auto;
-    padding: 15mm;
+    padding: 10mm;
     background: white !important;
   }
   @page {
@@ -144,5 +152,26 @@
   img {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .print-container .text-center.mb-8 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .print-container .space-y-5 > * + * {
+    margin-top: 0.5rem !important;
+  }
+
+  .print-container .grid {
+    gap: 0.5rem !important;
+  }
+
+  .print-container .mt-16 {
+    margin-top: 0.75rem !important;
+    padding-top: 0 !important;
+  }
+
+  .print-container p {
+    line-height: 1.35 !important;
   }
 }
