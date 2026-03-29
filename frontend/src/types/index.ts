@@ -17,6 +17,12 @@ export interface Student {
   address: string;
   totalFee: number;
   photo?: string;
+  admissionNumber?: string;
+  dateOfBirth?: string;
+  fatherName?: string;
+  motherName?: string;
+  dateOfAdmission?: string;
+  aadharNumber?: string;
   createdAt: string;
 }
 

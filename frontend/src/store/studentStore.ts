@@ -32,6 +32,12 @@ const normalizeStudent = (student: any): Student => ({
   address: student.address || '',
   totalFee: Number(student.totalFee || 0),
   photo: student.photo,
+  admissionNumber: student.admissionNumber || undefined,
+  dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : undefined,
+  fatherName: student.fatherName || undefined,
+  motherName: student.motherName || undefined,
+  dateOfAdmission: student.dateOfAdmission ? new Date(student.dateOfAdmission).toISOString().split('T')[0] : undefined,
+  aadharNumber: student.aadharNumber || undefined,
   createdAt: student.createdAt || new Date().toISOString().split('T')[0],
 });
 

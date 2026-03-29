@@ -27,7 +27,22 @@ const SECTIONS = ['A', 'B', 'C', 'D'];
 
 type SortOption = 'name-asc' | 'name-desc' | 'roll-asc' | 'roll-desc';
 
-const emptyForm = { name: '', class: '', section: '', rollNumber: '', contactNumber: '', address: '', totalFee: 0, photo: '' };
+const emptyForm = {
+  name: '',
+  class: '',
+  section: '',
+  rollNumber: '',
+  contactNumber: '',
+  address: '',
+  totalFee: 0,
+  photo: '',
+  admissionNumber: '',
+  dateOfBirth: '',
+  fatherName: '',
+  motherName: '',
+  dateOfAdmission: '',
+  aadharNumber: '',
+};
 
 export default function Students() {
   const { students, addStudent, updateStudent, deleteStudent } = useStudentStore();
@@ -103,7 +118,22 @@ export default function Students() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: Student) => {
     setEditing(s);
-    setForm({ name: s.name, class: s.class, section: s.section, rollNumber: s.rollNumber, contactNumber: s.contactNumber, address: s.address, totalFee: s.totalFee, photo: s.photo || '' });
+    setForm({
+      name: s.name,
+      class: s.class,
+      section: s.section,
+      rollNumber: s.rollNumber,
+      contactNumber: s.contactNumber,
+      address: s.address,
+      totalFee: s.totalFee,
+      photo: s.photo || '',
+      admissionNumber: s.admissionNumber || '',
+      dateOfBirth: s.dateOfBirth || '',
+      fatherName: s.fatherName || '',
+      motherName: s.motherName || '',
+      dateOfAdmission: s.dateOfAdmission || '',
+      aadharNumber: s.aadharNumber || '',
+    });
     setDialogOpen(true);
   };
 
@@ -307,6 +337,32 @@ const handleSubmit = async (e: React.FormEvent) => {
             <div className="space-y-2">
               <Label>Address</Label>
               <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} maxLength={200} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Admission Number</Label>
+                <Input value={form.admissionNumber} onChange={(e) => setForm({ ...form, admissionNumber: e.target.value })} maxLength={40} />
+              </div>
+              <div className="space-y-2">
+                <Label>Date of Birth</Label>
+                <Input type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Father Name</Label>
+                <Input value={form.fatherName} onChange={(e) => setForm({ ...form, fatherName: e.target.value })} maxLength={100} />
+              </div>
+              <div className="space-y-2">
+                <Label>Mother Name</Label>
+                <Input value={form.motherName} onChange={(e) => setForm({ ...form, motherName: e.target.value })} maxLength={100} />
+              </div>
+              <div className="space-y-2">
+                <Label>Date of Admission</Label>
+                <Input type="date" value={form.dateOfAdmission} onChange={(e) => setForm({ ...form, dateOfAdmission: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Aadhar Number</Label>
+                <Input value={form.aadharNumber} onChange={(e) => setForm({ ...form, aadharNumber: e.target.value })} maxLength={20} />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Student Photo</Label>

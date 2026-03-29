@@ -49,11 +49,16 @@ export default function Login() {
       {/* Left decorative panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center px-12 text-primary-foreground">
         <div className="max-w-md space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="h-14 w-14 rounded-xl bg-accent flex items-center justify-center">
-              <GraduationCap className="h-8 w-8 text-accent-foreground" />
+          <div className="flex items-center gap-4">
+            <img
+              src="/logo.png"
+              alt="School logo"
+              className="h-16 w-auto object-contain bg-white"
+            />
+            <div className="inline-grid">
+              <p className="w-full text-5xl font-bold uppercase tracking-tight">SADHANA</p>
+              <p className="w-full text-lg uppercase tracking-[0.35em]">MEMORIAL SCHOOL</p>
             </div>
-            <h1 className="text-4xl font-bold font-display">SADHANA MEMORIAL SCHOOL</h1>
           </div>
           <p className="text-lg text-primary-foreground/80 leading-relaxed">
             A complete school management solution. Manage students, fees, hall tickets, report cards, and more — all in one place.
@@ -71,15 +76,16 @@ export default function Login() {
 
       {/* Login form */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-card rounded-2xl shadow-[var(--shadow-modal)] p-8 animate-fade-in">
-          <div className="text-center mb-8 lg:hidden">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary mb-3">
-              <GraduationCap className="h-7 w-7 text-primary-foreground" />
+        <div className="relative w-full max-w-md rounded-2xl shadow-[var(--shadow-modal)] bg-card animate-fade-in">
+          <div className="relative z-10 p-8">
+            <div className="text-center mb-8">
+              <div className="mx-auto inline-grid">
+                <p className="w-full text-4xl font-bold uppercase tracking-tight text-foreground">SADHANA</p>
+                <p className="w-full text-base uppercase tracking-[0.35em] text-muted-foreground">MEMORIAL SCHOOL</p>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold font-display text-foreground">SADHANA MEMORIAL SCHOOL</h2>
-          </div>
 
-          <div className="mb-6">
+            <div className="mb-6">
             <h3 className="text-xl font-semibold text-foreground">Welcome back</h3>
             <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
           </div>
@@ -131,5 +137,6 @@ export default function Login() {
         </div>
       </div>
     </div>
+  </div>
   );
 }

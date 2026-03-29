@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { formatDate } from '@/lib/utils';
 import { useStudentStore } from '@/store/studentStore';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Printer } from 'lucide-react';
 // logo file placed in public folder
 // use jpg if available, otherwise png fallback
-const logoUrl = '/logo1.jpeg';
+const logoUrl = '/logo.png';
 import StudentFilter from '@/components/StudentFilter';
 
 export default function Receipt() {
@@ -53,7 +54,7 @@ export default function Receipt() {
             <SelectContent>
               {studentPayments.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
-                  {p.receiptNumber} — ₹{p.amount.toLocaleString()} — {p.date}
+                  {p.receiptNumber} — ₹{p.amount.toLocaleString()} — {formatDate(p.date)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -88,15 +89,13 @@ export default function Receipt() {
 
             {/* Header */}
             <div className="text-center mb-8 relative z-10">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary mb-3">
-                <img
-                  src={logoUrl}
-                  alt="School Logo"
-                  className="h-9 w-9 object-contain"
-                  style={{ WebkitPrintColorAdjust: 'exact' }}
-                />
-              </div>
-              <h1 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial School</h1>
+              <img
+                src={logoUrl}
+                alt="School Logo"
+                className="mx-auto mb-4 h-16 w-auto object-contain"
+                style={{ WebkitPrintColorAdjust: 'exact' }}
+              />
+              <h1 className="text-2xl font-bold font-display text-foreground">SADHANA MEMORIAL SCHOOL</h1>
               <p className="text-sm text-muted-foreground">Sanjay Gandhi Nagar, Shapur — Phone: 9848623438</p>
               <div className="mt-4 h-1 w-32 mx-auto bg-primary rounded-full" />
             </div>
@@ -110,7 +109,7 @@ export default function Receipt() {
               </div>
               <div className="text-right">
                 <p className="text-muted-foreground">Date</p>
-                <p className="font-semibold">{payment.date}</p>
+                <p className="font-semibold">{formatDate(payment.date)}</p>
               </div>
             </div>
 

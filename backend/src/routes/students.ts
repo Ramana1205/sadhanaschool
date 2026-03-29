@@ -6,6 +6,15 @@ import { AppError } from '../middleware/errorHandler.js';
 
 const router = express.Router();
 
+const parseDate = (value: any): Date | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new AppError(400, 'Invalid date value');
+  }
+  return parsed;
+};
+
 // Get all students
 router.get('/', authenticateToken, async (req, res, next) => {
   try {
@@ -32,7 +41,23 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
 // Create student
 router.post('/', authenticateToken, async (req, res, next) => {
   try {
-    const { name, class: className, section, rollNumber, contactNumber, address, totalFee, photo } = req.body;
+    const {
+      name,
+      class: className,
+      section,
+      rollNumber,
+      contactNumber,
+      address,
+      totalFee,
+      photo,
+      admissionNumber,
+      dateOfBirth,
+      fatherName,
+      motherName,
+      dateOfAdmission,
+      aadharNumber,
+    } = req.body;
+
     const parsedTotalFee = totalFee !== undefined && totalFee !== null ? Number(totalFee) : undefined;
 
     if (!name || !className || !section || !rollNumber || !contactNumber || !address || parsedTotalFee === undefined || Number.isNaN(parsedTotalFee)) {
@@ -53,6 +78,12 @@ router.post('/', authenticateToken, async (req, res, next) => {
       address,
       totalFee: parsedTotalFee,
       photo: photo || undefined,
+      admissionNumber: admissionNumber || undefined,
+      dateOfBirth: parseDate(dateOfBirth),
+      fatherName: fatherName || undefined,
+      motherName: motherName || undefined,
+      dateOfAdmission: parseDate(dateOfAdmission),
+      aadharNumber: aadharNumber || undefined,
     });
 
     await student.save();
@@ -65,7 +96,22 @@ router.post('/', authenticateToken, async (req, res, next) => {
 // Update student
 router.put('/:id', authenticateToken, async (req, res, next) => {
   try {
-    const { name, class: className, section, rollNumber, contactNumber, address, totalFee, photo } = req.body;
+    const {
+      name,
+      class: className,
+      section,
+      rollNumber,
+      contactNumber,
+      address,
+      totalFee,
+      photo,
+      admissionNumber,
+      dateOfBirth,
+      fatherName,
+      motherName,
+      dateOfAdmission,
+      aadharNumber,
+    } = req.body;
     const parsedTotalFee = totalFee !== undefined && totalFee !== null ? Number(totalFee) : undefined;
 
     const student = await Student.findById(req.params.id);
@@ -96,6 +142,12 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
         address: address || student.address,
         totalFee: parsedTotalFee !== undefined ? parsedTotalFee : student.totalFee,
         photo: photo !== undefined ? photo : student.photo,
+        admissionNumber: admissionNumber !== undefined ? (admissionNumber || undefined) : student.admissionNumber,
+        dateOfBirth: dateOfBirth !== undefined ? parseDate(dateOfBirth) : student.dateOfBirth,
+        fatherName: fatherName !== undefined ? (fatherName || undefined) : student.fatherName,
+        motherName: motherName !== undefined ? (motherName || undefined) : student.motherName,
+        dateOfAdmission: dateOfAdmission !== undefined ? parseDate(dateOfAdmission) : student.dateOfAdmission,
+        aadharNumber: aadharNumber !== undefined ? (aadharNumber || undefined) : student.aadharNumber,
       },
       { new: true, runValidators: true }
     );

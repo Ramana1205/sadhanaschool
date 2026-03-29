@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStudentStore } from '@/store/studentStore';
+import { formatDate } from '@/lib/utils';
 import type { Subject } from '@/types';
 import { getGrade } from '@/types';
 import { reportCardsApi } from '@/lib/api';
@@ -123,7 +124,7 @@ export default function ReportCard() {
             {savedReportCards.map((card) => (
               <div key={card._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-muted rounded-lg">
                 <div>
-                  <p className="font-medium text-foreground">{card.term} • {new Date(card.createdAt).toLocaleDateString()}</p>
+                  <p className="font-medium text-foreground">{card.term} • {formatDate(card.createdAt)}</p>
                   <p className="text-sm text-muted-foreground">{card.subjects.length} subjects</p>
                 </div>
                 <div className="flex gap-2">
@@ -204,10 +205,12 @@ export default function ReportCard() {
             </div>
 
             <div className="text-center mb-6 relative z-10">
-              <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary mb-2">
-                <GraduationCap className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <h1 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial School</h1>
+              <img
+                src="/logo.png"
+                alt="School Logo"
+                className="mx-auto mb-4 h-16 w-auto object-contain"
+              />
+              <h1 className="text-2xl font-bold font-display text-foreground">SADHANA MEMORIAL SCHOOL</h1>
               <p className="text-sm text-muted-foreground">Sanjay Gandhi Nagar, Shapur</p>
               <div className="mt-3 h-1 w-32 mx-auto bg-primary rounded-full" />
             </div>

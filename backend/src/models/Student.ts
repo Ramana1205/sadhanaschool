@@ -9,6 +9,12 @@ export interface IStudent extends Document {
   address: string;
   totalFee: number;
   photo?: string;
+  admissionNumber?: string;
+  dateOfBirth?: Date;
+  fatherName?: string;
+  motherName?: string;
+  dateOfAdmission?: Date;
+  aadharNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,6 +70,40 @@ const studentSchema = new Schema<IStudent>(
     },
     photo: {
       type: String,
+      default: undefined,
+    },
+    admissionNumber: {
+      type: String,
+      required: false,
+      trim: true,
+      default: undefined,
+    },
+    dateOfBirth: {
+      type: Date,
+      required: false,
+      default: undefined,
+    },
+    fatherName: {
+      type: String,
+      required: false,
+      trim: true,
+      default: undefined,
+    },
+    motherName: {
+      type: String,
+      required: false,
+      trim: true,
+      default: undefined,
+    },
+    dateOfAdmission: {
+      type: Date,
+      required: false,
+      default: undefined,
+    },
+    aadharNumber: {
+      type: String,
+      required: false,
+      trim: true,
       default: undefined,
     },
   },

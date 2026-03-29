@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStudentStore } from '@/store/studentStore';
 import { hallTicketsApi } from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +9,7 @@ import { Printer, Plus, Trash2, Save, History } from 'lucide-react';
 import StudentFilter from '@/components/StudentFilter';
 
 // logo file placed in public folder
-const logoUrl = '/logo1.jpeg';
+const logoUrl = '/logo.png';
 
 // All available classes
 const ALL_CLASSES = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
@@ -289,7 +290,7 @@ export default function HallTicket() {
               <div key={ticket._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-muted rounded-lg">
                 <div>
                   <p className="font-medium text-foreground">{ticket.examName} • {ticket.className}-{ticket.section}</p>
-                  <p className="text-sm text-muted-foreground">{new Date(ticket.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">{formatDate(ticket.createdAt)}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => handleLoadTicket(ticket)}>
@@ -381,7 +382,7 @@ export default function HallTicket() {
                     <div>
                       <p className="font-medium text-foreground">{ticket.examName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {ticket.subjects.length} subject(s) • {new Date(ticket.createdAt).toLocaleDateString()}
+                        {ticket.subjects.length} subject(s) • {formatDate(ticket.createdAt)}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -581,15 +582,13 @@ function HallTicketItem({ student, examName, academicYear, subjects }: HallTicke
       </div>
 
       <div className="text-center mb-6 relative z-10">
-        <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary mb-2">
-          <img
-            src={logoUrl}
-            alt="School Logo"
-            className="h-8 w-8 object-contain"
-            style={{ WebkitPrintColorAdjust: 'exact' }}
-          />
-        </div>
-        <h1 className="text-2xl font-bold font-display text-foreground">Sadhana Memorial School</h1>
+        <img
+          src={logoUrl}
+          alt="School Logo"
+          className="mx-auto mb-4 h-16 w-auto object-contain"
+          style={{ WebkitPrintColorAdjust: 'exact' }}
+        />
+        <h1 className="text-2xl font-bold font-display text-foreground">SADHANA MEMORIAL SCHOOL</h1>
         <p className="text-sm text-muted-foreground">Sanjay Gandhi Nagar, Shapur</p>
         <div className="mt-3 h-1 w-32 mx-auto bg-primary rounded-full" />
       </div>
@@ -628,7 +627,7 @@ function HallTicketItem({ student, examName, academicYear, subjects }: HallTicke
               {subjects.map((subject) => (
                 <div key={subject.id} className="grid grid-cols-3 border-b border-border last:border-0">
                   <div className="px-3 py-3 text-sm font-medium">{subject.name}</div>
-                  <div className="px-3 py-3 text-sm text-muted-foreground">{subject.date}</div>
+                  <div className="px-3 py-3 text-sm text-muted-foreground">{formatDate(subject.date)}</div>
                   <div className="px-3 py-3 min-h-12 border-l border-border"></div>
                 </div>
               ))}

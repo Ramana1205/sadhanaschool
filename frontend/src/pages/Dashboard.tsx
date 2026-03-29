@@ -23,7 +23,7 @@ export default function Dashboard() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Overview of Sadhana Memorial School</p>
+          <p className="text-sm text-muted-foreground mt-1">Overview of SADHANA MEMORIAL SCHOOL</p>
         </div>
       </div>
 

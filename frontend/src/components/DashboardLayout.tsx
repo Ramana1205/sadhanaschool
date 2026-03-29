@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import {
   LayoutDashboard, Users, CreditCard, FileText, ClipboardList,
-  BookOpen, LogOut, GraduationCap, Menu, X, UserCog,
+  BookOpen, LogOut, GraduationCap, Award, Menu, X, UserCog,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ export default function DashboardLayout() {
     { to: '/receipt', label: 'Receipts', icon: FileText },
     { to: '/hall-ticket', label: 'Hall Tickets', icon: ClipboardList },
     { to: '/report-card', label: 'Report Cards', icon: BookOpen },
+    { to: '/bonafide', label: 'Bonafide', icon: Award },
   ];
 
   if (user?.role === 'admin') {
@@ -64,10 +65,10 @@ export default function DashboardLayout() {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary overflow-hidden">
-            <img src="/logo1.jpeg" alt="School Logo" className="h-8 w-8 object-contain" />
+            <img src="/logo.png" alt="School Logo" className="h-8 w-8 object-contain" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-sidebar-foreground font-display">Sadhana Memorial School</h1>
+            <h1 className="text-base font-bold text-sidebar-foreground font-display">SADHANA MEMORIAL SCHOOL</h1>
             <p className="text-xs text-sidebar-foreground/60">School Management</p>
           </div>
           <button className="ml-auto lg:hidden text-sidebar-foreground" onClick={() => setSidebarOpen(false)}>

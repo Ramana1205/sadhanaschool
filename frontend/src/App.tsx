@@ -13,6 +13,7 @@ import Payments from "./pages/Payments";
 import Receipt from "./pages/Receipt";
 import HallTicket from "./pages/HallTicket";
 import ReportCard from "./pages/ReportCard";
+import Bonafide from "./pages/Bonafide";
 import AdminSettings from "./pages/AdminSettings";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import FacultySchedule from "./pages/FacultySchedule";
@@ -63,6 +64,7 @@ const App = () => {
             <Route path="/receipt" element={<Receipt />} />
             <Route path="/hall-ticket" element={<HallTicket />} />
             <Route path="/report-card" element={<ReportCard />} />
+            <Route path="/bonafide" element={<Bonafide />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
