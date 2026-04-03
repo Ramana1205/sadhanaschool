@@ -80,8 +80,41 @@ export default function ReportCard() {
     }
   };
 
+  const verifyDeleteSecurityKey = async () => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+
+    if (!storedKey) {
+      const newKey = window.prompt('No delete security key set. Please set one (min 4 chars):')?.trim();
+      if (!newKey || newKey.length < 4) {
+        alert('Security key must be at least 4 characters.');
+        return false;
+      }
+
+      const confirmKey = window.prompt('Confirm security key:')?.trim();
+      if (newKey !== confirmKey) {
+        alert('Security keys do not match.');
+        return false;
+      }
+
+      localStorage.setItem('deleteSecurityKey', newKey);
+      return true;
+    }
+
+    const enteredKey = window.prompt('Enter your security key to confirm deletion:')?.trim();
+    if (enteredKey !== storedKey) {
+      alert('Invalid security key.');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleDeleteReportCard = async (id: string) => {
+    const canDelete = await verifyDeleteSecurityKey();
+    if (!canDelete) return;
+
     if (!confirm('Delete this report card?')) return;
+
     try {
       await reportCardsApi.delete(id);
       setSavedReportCards(savedReportCards.filter((card) => card._id !== id));

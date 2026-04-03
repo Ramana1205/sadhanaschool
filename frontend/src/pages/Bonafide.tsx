@@ -23,6 +23,7 @@ export default function Bonafide() {
   const [fromYear, setFromYear] = useState('');
   const [toYear, setToYear] = useState(new Date().getFullYear().toString());
   const [dateOfAdmission, setDateOfAdmission] = useState('');
+  const [className, setClassName] = useState('');
   const [saving, setSaving] = useState(false);
 
   const student = useMemo(
@@ -41,6 +42,7 @@ export default function Bonafide() {
       setFromYear('');
       setToYear(new Date().getFullYear().toString());
       setDateOfAdmission('');
+      setClassName('');
       return;
     }
 
@@ -150,6 +152,10 @@ export default function Bonafide() {
               }} />
             </div>
             <div className="space-y-2">
+              <Label>Class Name</Label>
+              <Input value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Enter class name" />
+            </div>
+            <div className="space-y-2">
               <Label>From Year</Label>
               <Input value={fromYear} onChange={(e) => setFromYear(e.target.value)} placeholder="From year" />
             </div>
@@ -209,7 +215,14 @@ export default function Bonafide() {
             </p>
 
             <p>
-              {pronoun} studied from Class <span className="font-semibold">{student.class}</span> (Year{' '}
+              {pronoun} studied from Class <span className="hidden print-inline">{className || '____'}</span>
+              <input
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
+                placeholder="Class"
+              />
+              {' '} (Year{' '}
               <span className="hidden print-inline">{fromYear || '____'}</span>
               <input
                 value={fromYear}
@@ -217,7 +230,14 @@ export default function Bonafide() {
                 className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="From year"
               />
-              ) to Class <span className="font-semibold">{student.class}</span> (Year{' '}
+              ) to Class <span className="hidden print-inline">{className || '____'}</span>
+              <input
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
+                placeholder="Class"
+              />
+              {' '} (Year{' '}
               <span className="hidden print-inline">{toYear || '____'}</span>
               <input
                 value={toYear}

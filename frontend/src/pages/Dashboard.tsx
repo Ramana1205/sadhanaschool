@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import { useStudentStore } from '@/store/studentStore';
-import { Users, CreditCard, AlertCircle, TrendingUp } from 'lucide-react';
+import { paymentsApi } from '@/lib/api';
+import { Users, CreditCard, AlertCircle, TrendingUp, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const { students, payments, getTotalFeesCollected, getTotalPendingFees, getClassDistribution } = useStudentStore();
@@ -8,6 +14,67 @@ export default function Dashboard() {
   const totalPending = getTotalPendingFees();
   const recentPayments = [...payments].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const classDistribution = getClassDistribution();
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [setKeyModalOpen, setSetKeyModalOpen] = useState(false);
+  const [securityKey, setSecurityKey] = useState('');
+  const [confirmKey, setConfirmKey] = useState('');
+  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
+
+  const handleDeletePayment = (paymentId: string) => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+    if (!storedKey) {
+      setSetKeyModalOpen(true);
+      setPaymentToDelete(paymentId);
+    } else {
+      setPaymentToDelete(paymentId);
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const handleSetSecurityKey = () => {
+    if (securityKey.length < 4) {
+      alert('Security key must be at least 4 characters');
+      return;
+    }
+    if (securityKey !== confirmKey) {
+      alert('Keys do not match');
+      return;
+    }
+    localStorage.setItem('deleteSecurityKey', securityKey);
+    setSetKeyModalOpen(false);
+    setSecurityKey('');
+    setConfirmKey('');
+    if (paymentToDelete) {
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+    if (securityKey !== storedKey) {
+      alert('Invalid security key');
+      return;
+    }
+    if (!paymentToDelete) return;
+
+    try {
+      // Assuming paymentsApi has delete method
+      await paymentsApi.delete(paymentToDelete);
+      // Update local state
+      useStudentStore.setState((state) => ({
+        payments: state.payments.filter((p) => p.id !== paymentToDelete),
+      }));
+      alert('Payment deleted successfully');
+    } catch (error) {
+      console.error('Delete failed', error);
+      alert('Failed to delete payment');
+    } finally {
+      setDeleteModalOpen(false);
+      setPaymentToDelete(null);
+      setSecurityKey('');
+    }
+  };
 
   const stats = [
     { label: 'Total Students', value: students.length, icon: Users, color: 'bg-primary' },
@@ -98,6 +165,7 @@ export default function Dashboard() {
                 <th className="text-left px-6 py-3 font-medium text-muted-foreground">Amount</th>
                 <th className="text-left px-6 py-3 font-medium text-muted-foreground">Mode</th>
                 <th className="text-left px-6 py-3 font-medium text-muted-foreground">Date</th>
+                <th className="text-left px-6 py-3 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -114,16 +182,89 @@ export default function Dashboard() {
                       }`}>{payment.mode}</span>
                     </td>
                     <td className="px-6 py-3 text-muted-foreground">{payment.date}</td>
+                    <td className="px-6 py-3">
+                      <button
+                        onClick={() => handleDeletePayment(payment.id)}
+                        className="text-destructive hover:text-destructive/80 p-1"
+                        title="Delete Payment"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
               {recentPayments.length === 0 && (
-                <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">No payments yet</td></tr>
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No payments yet</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Set Security Key Modal */}
+      <Dialog open={setKeyModalOpen} onOpenChange={setSetKeyModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Delete Security Key</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="securityKey">Security Key</Label>
+              <Input
+                id="securityKey"
+                type="password"
+                value={securityKey}
+                onChange={(e) => setSecurityKey(e.target.value)}
+                placeholder="Enter a secure key"
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmKey">Confirm Security Key</Label>
+              <Input
+                id="confirmKey"
+                type="password"
+                value={confirmKey}
+                onChange={(e) => setConfirmKey(e.target.value)}
+                placeholder="Confirm the key"
+              />
+            </div>
+            <Button onClick={handleSetSecurityKey} className="w-full">
+              Set Key
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p>Enter your security key to confirm deletion of this payment.</p>
+            <div>
+              <Label htmlFor="deleteKey">Security Key</Label>
+              <Input
+                id="deleteKey"
+                type="password"
+                value={securityKey}
+                onChange={(e) => setSecurityKey(e.target.value)}
+                placeholder="Enter security key"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleConfirmDelete} className="flex-1">
+                Delete
+              </Button>
+              <Button variant="outline" onClick={() => setDeleteModalOpen(false)} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

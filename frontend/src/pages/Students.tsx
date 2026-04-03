@@ -71,10 +71,12 @@ export default function Students() {
   const [search, setSearch] = useState('');
   const [filterClass, setFilterClass] = useState('all');
   const [sort, setSort] = useState<SortOption>('name-asc');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Student | null>(null);
-  const [form, setForm] = useState(emptyForm);
   const [collapsedClasses, setCollapsedClasses] = useState<Set<string>>(new Set());
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [setKeyModalOpen, setSetKeyModalOpen] = useState(false);
+  const [securityKey, setSecurityKey] = useState('');
+  const [confirmKey, setConfirmKey] = useState('');
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     let result = students.filter((s) => {
@@ -137,22 +139,54 @@ export default function Students() {
     setDialogOpen(true);
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!form.name.trim() || !form.class || !form.section || !form.rollNumber.trim()) return;
-
-  try {
-    if (editing) {
-      await studentsApi.update(editing.id, form);
+const handleDeleteStudent = (studentId: string) => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+    if (!storedKey) {
+      setSetKeyModalOpen(true);
+      setStudentToDelete(studentId);
     } else {
-      await studentsApi.create(form);
+      setStudentToDelete(studentId);
+      setDeleteModalOpen(true);
     }
+  };
 
-    await loadStudents();
-    setDialogOpen(false);
-  } catch (err) {
-    console.error('Student save failed', err);
+  const handleSetSecurityKey = () => {
+    if (securityKey.length < 4) {
+      alert('Security key must be at least 4 characters');
+      return;
+    }
+    if (securityKey !== confirmKey) {
+      alert('Keys do not match');
+      return;
+    }
+    localStorage.setItem('deleteSecurityKey', securityKey);
+    setSetKeyModalOpen(false);
+    setSecurityKey('');
+    setConfirmKey('');
+    if (studentToDelete) {
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+    if (securityKey !== storedKey) {
+      alert('Invalid security key');
+      return;
+    }
+    if (!studentToDelete) return;
+
+    try {
+      await studentsApi.delete(studentToDelete);
+      await loadStudents();
+      alert('Student deleted successfully');
+    } catch (error) {
+      console.error('Delete failed', error);
+      alert('Failed to delete student');
+    } finally {
+      setDeleteModalOpen(false);
+      setStudentToDelete(null);
+      setSecurityKey('');
   }
 };
 
@@ -262,14 +296,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={async () => {
-                                  try {
-                                    await studentsApi.delete(s.id);
-                                    await loadStudents();
-                                  } catch (err) {
-                                    console.error('Delete failed', err);
-                                  }
-                                }}
+                                onClick={() => handleDeleteStudent(s.id)}
                                 className="text-destructive hover:text-destructive"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -293,87 +320,67 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       )}
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      {/* Set Security Key Modal */}
+      <Dialog open={setKeyModalOpen} onOpenChange={setSetKeyModalOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-display">{editing ? 'Edit Student' : 'Add Student'}</DialogTitle>
+            <DialogTitle>Set Delete Security Key</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required maxLength={100} />
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="securityKey">Security Key</Label>
+              <Input
+                id="securityKey"
+                type="password"
+                value={securityKey}
+                onChange={(e) => setSecurityKey(e.target.value)}
+                placeholder="Enter a secure key"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Class *</Label>
-                <Select value={form.class} onValueChange={(v) => setForm({ ...form, class: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>{ALL_CLASSES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Section *</Label>
-                <Select value={form.section} onValueChange={(v) => setForm({ ...form, section: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>{SECTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="confirmKey">Confirm Security Key</Label>
+              <Input
+                id="confirmKey"
+                type="password"
+                value={confirmKey}
+                onChange={(e) => setConfirmKey(e.target.value)}
+                placeholder="Confirm the key"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Roll Number *</Label>
-                <Input value={form.rollNumber} onChange={(e) => setForm({ ...form, rollNumber: e.target.value })} required maxLength={20} />
-              </div>
-              <div className="space-y-2">
-                <Label>Total Fee (₹)</Label>
-                <Input type="number" value={form.totalFee} onChange={(e) => setForm({ ...form, totalFee: Number(e.target.value) })} min={0} />
-              </div>
+            <Button onClick={handleSetSecurityKey} className="w-full">
+              Set Key
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Delete Modal */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p>Enter your security key to confirm deletion of this student.</p>
+            <div>
+              <Label htmlFor="deleteKey">Security Key</Label>
+              <Input
+                id="deleteKey"
+                type="password"
+                value={securityKey}
+                onChange={(e) => setSecurityKey(e.target.value)}
+                placeholder="Enter security key"
+              />
             </div>
-            <div className="space-y-2">
-              <Label>Contact Number</Label>
-              <Input value={form.contactNumber} onChange={(e) => setForm({ ...form, contactNumber: e.target.value })} maxLength={15} />
+            <div className="flex gap-2">
+              <Button onClick={handleConfirmDelete} className="flex-1">
+                Delete
+              </Button>
+              <Button variant="outline" onClick={() => setDeleteModalOpen(false)} className="flex-1">
+                Cancel
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} maxLength={200} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Admission Number</Label>
-                <Input value={form.admissionNumber} onChange={(e) => setForm({ ...form, admissionNumber: e.target.value })} maxLength={40} />
-              </div>
-              <div className="space-y-2">
-                <Label>Date of Birth</Label>
-                <Input type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Father Name</Label>
-                <Input value={form.fatherName} onChange={(e) => setForm({ ...form, fatherName: e.target.value })} maxLength={100} />
-              </div>
-              <div className="space-y-2">
-                <Label>Mother Name</Label>
-                <Input value={form.motherName} onChange={(e) => setForm({ ...form, motherName: e.target.value })} maxLength={100} />
-              </div>
-              <div className="space-y-2">
-                <Label>Date of Admission</Label>
-                <Input type="date" value={form.dateOfAdmission} onChange={(e) => setForm({ ...form, dateOfAdmission: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Aadhar Number</Label>
-                <Input value={form.aadharNumber} onChange={(e) => setForm({ ...form, aadharNumber: e.target.value })} maxLength={20} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Student Photo</Label>
-              <Input type="file" accept="image/*" onChange={handlePhotoUpload} />
-              {form.photo && <img src={form.photo} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />}
-            </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button type="submit">{editing ? 'Update' : 'Add Student'}</Button>
-            </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

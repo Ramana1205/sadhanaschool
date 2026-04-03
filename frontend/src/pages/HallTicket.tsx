@@ -197,16 +197,48 @@ export default function HallTicket() {
     }
   };
 
-  const handleDeleteTicket = async (ticketId: string) => {
-    if (confirm('Are you sure you want to delete this hall ticket?')) {
-      try {
-        await hallTicketsApi.delete(ticketId);
-        setSavedTickets(savedTickets.filter((t) => t._id !== ticketId));
-        alert('Hall ticket deleted successfully');
-      } catch (error) {
-        console.error('Error deleting hall ticket:', error);
-        alert('Error deleting hall ticket');
+  const verifyDeleteSecurityKey = async () => {
+    const storedKey = localStorage.getItem('deleteSecurityKey');
+
+    if (!storedKey) {
+      const newKey = window.prompt('No delete security key set. Please set one (min 4 chars):')?.trim();
+      if (!newKey || newKey.length < 4) {
+        alert('Security key must be at least 4 characters.');
+        return false;
       }
+
+      const confirmKey = window.prompt('Confirm security key:')?.trim();
+      if (newKey !== confirmKey) {
+        alert('Security keys do not match.');
+        return false;
+      }
+
+      localStorage.setItem('deleteSecurityKey', newKey);
+      return true;
+    }
+
+    const enteredKey = window.prompt('Enter your security key to confirm deletion:')?.trim();
+    if (enteredKey !== storedKey) {
+      alert('Invalid security key.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleDeleteTicket = async (ticketId: string) => {
+    const canDelete = await verifyDeleteSecurityKey();
+    if (!canDelete) return;
+
+    if (!confirm('Are you sure you want to delete this hall ticket?')) return;
+
+    try {
+      await hallTicketsApi.delete(ticketId);
+      setSavedTickets(savedTickets.filter((t) => t._id !== ticketId));
+      alert('Hall ticket deleted successfully');
+    } catch (error) {
+      console.error('Error deleting hall ticket:', error);
+      alert('Error deleting hall ticket');
     }
   };
 
