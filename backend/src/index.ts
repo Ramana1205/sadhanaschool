@@ -16,11 +16,18 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sadhanaschool.vercel.app';
+const allowedOrigins = [FRONTEND_URL, 'http://localhost:5173'];
 const corsOptions = {
-  origin: [FRONTEND_URL, 'http://localhost:5173'],
+  origin: (origin: string | undefined, callback: any) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS policy blocked origin: ${origin}`));
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204,
 };
 
 // Middleware
