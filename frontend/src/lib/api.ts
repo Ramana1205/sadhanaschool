@@ -2,8 +2,17 @@ import { useAuthStore } from '@/store/authStore';
 
 // ================= CONFIG =================
 // Prefer explicit environment URL, but fallback to local when running dev without internet.
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:5001/api` || 'http://localhost:5001/api';
+const getApiBaseUrl = () => {
+  const rawUrl = import.meta.env.VITE_API_URL;
+  if (rawUrl) {
+    const trimmed = rawUrl.replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+
+  return `${window.location.protocol}//${window.location.hostname}:5001/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // ================= TOKEN =================
 const getToken = (): string | null => {

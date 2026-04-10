@@ -39,11 +39,17 @@ app.use('/uploads', express.static('public/uploads'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/students', studentRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use('/api/report-cards', reportCardRoutes);
+app.use('/report-cards', reportCardRoutes);
 app.use('/api/hall-tickets', hallTicketRoutes);
+app.use('/hall-tickets', hallTicketRoutes);
 app.use('/api/fee-catalog', feeCatalogRoutes);
 app.use('/fee-catalog', feeCatalogRoutes);
 
