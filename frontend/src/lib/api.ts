@@ -1,18 +1,20 @@
 import { useAuthStore } from '@/store/authStore';
 
 // ================= CONFIG =================
-// Prefer explicit environment URL, but fallback to local when running dev without internet.
+// Use a fixed production API host by default so route-based client navigation
+// does not change the request origin or path.
+const DEFAULT_API_BASE_URL = 'https://sadhanaschool.onrender.com';
+
 const getApiBaseUrl = () => {
   const rawUrl = import.meta.env.VITE_API_URL;
   if (rawUrl) {
-    const trimmed = rawUrl.replace(/\/+$/, '');
-    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+    return rawUrl.replace(/\/+$/, '');
   }
 
-  return `${window.location.protocol}//${window.location.hostname}:5001/api`;
+  return DEFAULT_API_BASE_URL;
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 // ================= TOKEN =================
 const getToken = (): string | null => {
@@ -64,6 +66,24 @@ const makeRequest = async <T>(
   }
 
   return response.json();
+};
+
+export const apiFetch = async <T>(endpoint: string, options: RequestInit = {}) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      ...(!(options.body instanceof FormData) && {
+        'Content-Type': 'application/json',
+      }),
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
 };
 
 // ================= AUTH =================
