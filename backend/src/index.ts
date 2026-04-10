@@ -15,8 +15,17 @@ import User from './models/User.js';
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sadhanaschool.vercel.app';
+const corsOptions = {
+  origin: [FRONTEND_URL, 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('public/uploads'));
