@@ -89,25 +89,25 @@ export const apiFetch = async <T>(endpoint: string, options: RequestInit = {}) =
 // ================= AUTH =================
 export const authApi = {
   login: (username: string, password: string) =>
-    makeRequest('/api/auth/login', {
+    makeRequest('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     }, false),
 
   register: (data: any) =>
-    makeRequest('/api/auth/register', {
+    makeRequest('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     }, false),
 
   getCurrentUser: () =>
-    makeRequest('/api/auth/me', { method: 'GET' }),
+    makeRequest('/auth/me', { method: 'GET' }),
 
   createFaculty: async (formData: FormData) => {
     const token = getToken();
     if (!token) throw new Error('No authentication token available');
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/faculty`, {
+    const response = await fetch(`${API_BASE_URL}/auth/faculty`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -124,137 +124,137 @@ export const authApi = {
   },
 
   getFaculties: () =>
-    makeRequest('/api/auth/faculties', { method: 'GET' }),
+    makeRequest('/auth/faculties', { method: 'GET' }),
 };
 
 // ================= STUDENTS =================
 export const studentsApi = {
   getAll: () =>
-    makeRequest('/api/students', { method: 'GET' }),
+    makeRequest('/students', { method: 'GET' }),
 
   getById: (id: string) =>
-    makeRequest(`/api/students/${id}`, { method: 'GET' }),
+    makeRequest(`/students/${id}`, { method: 'GET' }),
 
   create: (data: any) =>
-    makeRequest('/api/students', {
+    makeRequest('/students', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: any) =>
-    makeRequest(`/api/students/${id}`, {
+    makeRequest(`/students/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    makeRequest(`/api/students/${id}`, { method: 'DELETE' }),
+    makeRequest(`/students/${id}`, { method: 'DELETE' }),
 
   switchClass: (id: string, data: { newClass: string }) =>
-    makeRequest(`/api/students/switch-class/${id}`, {
+    makeRequest(`/students/switch-class/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   undoSwitch: (id: string) =>
-    makeRequest(`/api/students/undo-switch/${id}`, { method: 'PUT' }),
+    makeRequest(`/students/undo-switch/${id}`, { method: 'PUT' }),
 
   promoteAll: () =>
-    makeRequest('/api/students/promote-all', { method: 'PUT' }),
+    makeRequest('/students/promote-all', { method: 'PUT' }),
 
   undoPromoteAll: () =>
-    makeRequest('/api/students/undo-promote-all', { method: 'PUT' }),
+    makeRequest('/students/undo-promote-all', { method: 'PUT' }),
 
   getPromotionStatus: () =>
-    makeRequest('/api/students/promotion-status', { method: 'GET' }),
+    makeRequest('/students/promotion-status', { method: 'GET' }),
 
   backfillBalances: () =>
-    makeRequest('/api/students/backfill-balances', { method: 'PUT' }),
+    makeRequest('/students/backfill-balances', { method: 'PUT' }),
 };
 
 export const feeCatalogApi = {
   getAll: () =>
-    makeRequest('/api/fee-catalog', { method: 'GET' }),
+    makeRequest('/fee-catalog', { method: 'GET' }),
 
   getByClass: (className: string) =>
-    makeRequest(`/api/fee-catalog/class/${encodeURIComponent(className)}`, { method: 'GET' }),
+    makeRequest(`/fee-catalog/class/${encodeURIComponent(className)}`, { method: 'GET' }),
 
   create: (data: any) =>
-    makeRequest('/api/fee-catalog', {
+    makeRequest('/fee-catalog', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: any) =>
-    makeRequest(`/api/fee-catalog/${id}`, {
+    makeRequest(`/fee-catalog/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    makeRequest(`/api/fee-catalog/${id}`, { method: 'DELETE' }),
+    makeRequest(`/fee-catalog/${id}`, { method: 'DELETE' }),
 };
 
 // ================= HALL TICKETS =================
 export const hallTicketsApi = {
   getAll: () =>
-    makeRequest('/api/hall-tickets', { method: 'GET' }),
+    makeRequest('/hall-tickets', { method: 'GET' }),
 
   getByClass: (className: string, section: string) =>
-    makeRequest(`/api/hall-tickets/class/${encodeURIComponent(className)}/${encodeURIComponent(section)}`, { method: 'GET' }),
+    makeRequest(`/hall-tickets/class/${encodeURIComponent(className)}/${encodeURIComponent(section)}`, { method: 'GET' }),
 
   create: (data: any) =>
-    makeRequest('/api/hall-tickets', {
+    makeRequest('/hall-tickets', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    makeRequest(`/api/hall-tickets/${id}`, { method: 'DELETE' }),
+    makeRequest(`/hall-tickets/${id}`, { method: 'DELETE' }),
 };
 // ================= PAYMENTS =================
 export const paymentsApi = {
   getAll: () =>
-    makeRequest('/api/payments', { method: 'GET' }),
+    makeRequest('/payments', { method: 'GET' }),
 
   getByStudent: (studentId: string) =>
-    makeRequest(`/api/payments/student/${studentId}`, { method: 'GET' }),
+    makeRequest(`/payments/student/${studentId}`, { method: 'GET' }),
 
   getById: (id: string) =>
-    makeRequest(`/api/payments/${id}`, { method: 'GET' }),
+    makeRequest(`/payments/${id}`, { method: 'GET' }),
 
   create: (data: any) =>
-    makeRequest('/api/payments', {
+    makeRequest('/payments', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: any) =>
-    makeRequest(`/api/payments/${id}`, {
+    makeRequest(`/payments/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    makeRequest(`/api/payments/${id}`, { method: 'DELETE' }),
+    makeRequest(`/payments/${id}`, { method: 'DELETE' }),
 
   getSummary: () =>
-    makeRequest('/api/payments/stats/summary', { method: 'GET' }),
+    makeRequest('/payments/stats/summary', { method: 'GET' }),
 };
 
 // ================= DASHBOARD =================
 export const dashboardApi = {
   getStats: () =>
-    makeRequest('/api/dashboard', { method: 'GET' }),
+    makeRequest('/dashboard', { method: 'GET' }),
 };
 
 // ================= REPORT CARDS =================
 export const reportCardsApi = {
   getAll: () =>
-    makeRequest('/api/report-cards', { method: 'GET' }),
+    makeRequest('/report-cards', { method: 'GET' }),
 
   getByStudent: (studentId: string) =>
-    makeRequest(`/api/report-cards/student/${studentId}`, { method: 'GET' }),
+    makeRequest(`/report-cards/student/${studentId}`, { method: 'GET' }),
 
   getById: (id: string) =>
     makeRequest(`/report-cards/${id}`, { method: 'GET' }),
