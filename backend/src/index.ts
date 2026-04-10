@@ -38,8 +38,12 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/report-cards', reportCardRoutes);
 app.use('/api/hall-tickets', hallTicketRoutes);
 app.use('/api/fee-catalog', feeCatalogRoutes);
+app.use('/fee-catalog', feeCatalogRoutes);
 
 // Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
