@@ -69,23 +69,33 @@ export default function Payments() {
         />
 
         {/* AMOUNT */}
-        <input
-          type="number"
-          placeholder="Enter amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
+        <div className="space-y-2">
+          <label htmlFor="paymentAmount" className="sr-only">Amount</label>
+          <input
+            id="paymentAmount"
+            name="amount"
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
 
         {/* MODE */}
-        <select
-          value={mode}
-          onChange={(e) => setMode(e.target.value as 'cash' | 'online')}
-          className="w-full p-2 border rounded"
-        >
-          <option value="cash">Cash</option>
-          <option value="online">Online</option>
-        </select>
+        <div className="space-y-2">
+          <label htmlFor="paymentMode" className="sr-only">Payment mode</label>
+          <select
+            id="paymentMode"
+            name="mode"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as 'cash' | 'online')}
+            className="w-full p-2 border rounded"
+          >
+            <option value="cash">Cash</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
 
         <button
           type="submit"

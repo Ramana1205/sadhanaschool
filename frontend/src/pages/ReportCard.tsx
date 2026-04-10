@@ -177,8 +177,10 @@ export default function ReportCard() {
       <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Term</Label>
+            <Label htmlFor="report-term">Term</Label>
             <select
+              id="report-term"
+              name="term"
               value={term}
               onChange={(e) => setTerm(e.target.value as 'Term 1' | 'Term 2' | 'Annual')}
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
@@ -189,8 +191,14 @@ export default function ReportCard() {
             </select>
           </div>
           <div className="space-y-2">
-            <Label>Academic Year</Label>
-            <Input value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} maxLength={20} />
+            <Label htmlFor="report-academic-year">Academic Year</Label>
+            <Input
+              id="report-academic-year"
+              name="academicYear"
+              value={academicYear}
+              onChange={(e) => setAcademicYear(e.target.value)}
+              maxLength={20}
+            />
           </div>
         </div>
 
@@ -204,9 +212,45 @@ export default function ReportCard() {
           <div className="space-y-2">
             {subjects.map((sub, i) => (
               <div key={i} className="flex gap-2 items-center">
-                <Input placeholder="Subject name" value={sub.name} onChange={(e) => updateSubject(i, 'name', e.target.value)} className="flex-1" maxLength={50} />
-                <Input type="number" placeholder="Max" value={sub.maxMarks} onChange={(e) => updateSubject(i, 'maxMarks', Number(e.target.value))} className="w-20" min={0} />
-                <Input type="number" placeholder="Got" value={sub.obtainedMarks} onChange={(e) => updateSubject(i, 'obtainedMarks', Math.min(Number(e.target.value), sub.maxMarks))} className="w-20" min={0} max={sub.maxMarks} />
+                <div className="sr-only">
+                  <Label htmlFor={`subject-name-${i}`}>Subject Name</Label>
+                </div>
+                <Input
+                  id={`subject-name-${i}`}
+                  name={`subjectName-${i}`}
+                  placeholder="Subject name"
+                  value={sub.name}
+                  onChange={(e) => updateSubject(i, 'name', e.target.value)}
+                  className="flex-1"
+                  maxLength={50}
+                />
+                <div className="sr-only">
+                  <Label htmlFor={`subject-max-${i}`}>Max Marks</Label>
+                </div>
+                <Input
+                  id={`subject-max-${i}`}
+                  name={`subjectMax-${i}`}
+                  type="number"
+                  placeholder="Max"
+                  value={sub.maxMarks}
+                  onChange={(e) => updateSubject(i, 'maxMarks', Number(e.target.value))}
+                  className="w-20"
+                  min={0}
+                />
+                <div className="sr-only">
+                  <Label htmlFor={`subject-obtained-${i}`}>Obtained Marks</Label>
+                </div>
+                <Input
+                  id={`subject-obtained-${i}`}
+                  name={`subjectObtained-${i}`}
+                  type="number"
+                  placeholder="Got"
+                  value={sub.obtainedMarks}
+                  onChange={(e) => updateSubject(i, 'obtainedMarks', Math.min(Number(e.target.value), sub.maxMarks))}
+                  className="w-20"
+                  min={0}
+                  max={sub.maxMarks}
+                />
                 <Button type="button" variant="ghost" size="icon" onClick={() => removeSubject(i)} className="shrink-0 text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -216,8 +260,15 @@ export default function ReportCard() {
         </div>
 
         <div className="space-y-2">
-          <Label>Remarks</Label>
-          <Input value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Teacher's remarks..." maxLength={200} />
+          <Label htmlFor="report-remarks">Remarks</Label>
+          <Input
+            id="report-remarks"
+            name="remarks"
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Teacher's remarks..."
+            maxLength={200}
+          />
         </div>
       </div>
 

@@ -452,8 +452,17 @@ export default function Students() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
+          <label htmlFor="student-search" className="sr-only">Search students</label>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by name or roll number..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" maxLength={100} />
+          <Input
+            id="student-search"
+            name="studentSearch"
+            placeholder="Search by name or roll number..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+            maxLength={100}
+          />
         </div>
         <Select value={filterClass} onValueChange={setFilterClass}>
           <SelectTrigger className="w-full sm:w-44">

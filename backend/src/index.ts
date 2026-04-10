@@ -3,14 +3,15 @@ import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/database.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import authRoutes from './routes/auth.ts';
-import studentRoutes from './routes/students.js';
-import paymentRoutes from './routes/payments.js';
-import dashboardRoutes from './routes/dashboard.js';
-import reportCardRoutes from './routes/reportCards.js';
-import hallTicketRoutes from './routes/hallTickets.js';
-import feeCatalogRoutes from './routes/feeCatalog.js';
-import User from './models/User.js';
+import authRoutes from './routes/auth';
+import facultyRoutes from './routes/faculty';
+import studentRoutes from './routes/students';
+import paymentRoutes from './routes/payments';
+import dashboardRoutes from './routes/dashboard';
+import reportCardRoutes from './routes/reportCards';
+import hallTicketRoutes from './routes/hallTickets';
+import feeCatalogRoutes from './routes/feeCatalog';
+import User from './models/User';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -52,6 +53,7 @@ app.use('/api/hall-tickets', hallTicketRoutes);
 app.use('/hall-tickets', hallTicketRoutes);
 app.use('/api/fee-catalog', feeCatalogRoutes);
 app.use('/fee-catalog', feeCatalogRoutes);
+app.use('/', facultyRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -76,9 +76,9 @@ export default function Receipt() {
 
       {selectedStudent && studentPayments.length > 0 && (
         <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print">
-          <Label className="mb-2 block">Select Payment</Label>
-          <Select value={selectedPayment} onValueChange={setSelectedPayment}>
-            <SelectTrigger className="max-w-md">
+          <Label htmlFor="receipt-payment" className="mb-2 block">Select Payment</Label>
+          <Select name="selectedPayment" value={selectedPayment} onValueChange={setSelectedPayment}>
+            <SelectTrigger id="receipt-payment" className="max-w-md">
               <SelectValue placeholder="Choose a payment to generate receipt" />
             </SelectTrigger>
             <SelectContent>

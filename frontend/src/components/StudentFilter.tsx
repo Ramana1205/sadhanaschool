@@ -52,9 +52,9 @@ export default function StudentFilter({ selectedStudent, onSelectStudent, label 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Class Filter */}
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Class</Label>
-          <Select value={filterClass} onValueChange={(v) => { setFilterClass(v); onSelectStudent(''); }}>
-            <SelectTrigger>
+          <Label htmlFor="student-filter-class" className="text-xs text-muted-foreground">Class</Label>
+          <Select name="filterClass" value={filterClass} onValueChange={(v) => { setFilterClass(v); onSelectStudent(''); }}>
+            <SelectTrigger id="student-filter-class">
               <SelectValue placeholder="Select Class" />
             </SelectTrigger>
             <SelectContent>
@@ -72,10 +72,12 @@ export default function StudentFilter({ selectedStudent, onSelectStudent, label 
 
         {/* Search */}
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Search</Label>
+          <Label htmlFor="student-filter-search" className="text-xs text-muted-foreground">Search</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              id="student-filter-search"
+              name="filterSearch"
               placeholder="Name or roll..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -87,9 +89,9 @@ export default function StudentFilter({ selectedStudent, onSelectStudent, label 
 
         {/* Sort */}
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Sort By</Label>
-          <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-            <SelectTrigger>
+          <Label htmlFor="student-filter-sort" className="text-xs text-muted-foreground">Sort By</Label>
+          <Select name="filterSort" value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+            <SelectTrigger id="student-filter-sort">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -103,11 +105,11 @@ export default function StudentFilter({ selectedStudent, onSelectStudent, label 
 
         {/* Student Selection */}
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">
+          <Label htmlFor="student-filter-student" className="text-xs text-muted-foreground">
             Student {classCount !== null && <span className="text-primary">({classCount} found)</span>}
           </Label>
-          <Select value={selectedStudent} onValueChange={onSelectStudent} disabled={!filterClass}>
-            <SelectTrigger>
+          <Select name="selectedStudent" value={selectedStudent} onValueChange={onSelectStudent} disabled={!filterClass}>
+            <SelectTrigger id="student-filter-student">
               <SelectValue placeholder={filterClass ? 'Choose student' : 'Select class first'} />
             </SelectTrigger>
             <SelectContent>

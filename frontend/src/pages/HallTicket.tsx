@@ -346,8 +346,10 @@ export default function HallTicket() {
           <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Select Class</Label>
+                <Label htmlFor="hallticket-class">Select Class</Label>
                 <select 
+                  id="hallticket-class"
+                  name="hallTicketClass"
                   value={selectedClass} 
                   onChange={(e) => {
                     setSelectedClass(e.target.value);
@@ -362,8 +364,10 @@ export default function HallTicket() {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Select Section</Label>
+                <Label htmlFor="hallticket-section">Select Section</Label>
                 <select 
+                  id="hallticket-section"
+                  name="hallTicketSection"
                   value={selectedSection} 
                   onChange={(e) => setSelectedSection(e.target.value)}
                   disabled={!selectedClass}
@@ -447,18 +451,33 @@ export default function HallTicket() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Exam Name</Label>
-              <Input value={examName} onChange={(e) => setExamName(e.target.value)} placeholder="e.g. Mid-Term Examination" maxLength={100} />
+              <Label htmlFor="hallticket-exam-name">Exam Name</Label>
+              <Input
+                id="hallticket-exam-name"
+                name="examName"
+                value={examName}
+                onChange={(e) => setExamName(e.target.value)}
+                placeholder="e.g. Mid-Term Examination"
+                maxLength={100}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Academic Year</Label>
-              <Input value={academicYear} onChange={(e) => setAcademicYear(e.target.value)} maxLength={20} />
+              <Label htmlFor="hallticket-academic-year">Academic Year</Label>
+              <Input
+                id="hallticket-academic-year"
+                name="academicYear"
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                maxLength={20}
+              />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label>Number of Subjects</Label>
+            <Label htmlFor="hallticket-num-subjects">Number of Subjects</Label>
             <Input 
+              id="hallticket-num-subjects"
+              name="numSubjects"
               type="number" 
               min="0" 
               max="10"
@@ -560,8 +579,10 @@ function SubjectForm({ expectedCount, addedCount, onAddSubject }: SubjectFormPro
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
         <div className="space-y-2">
-          <Label>Subject Name</Label>
+          <Label htmlFor="hallticket-subject-name">Subject Name</Label>
           <Input 
+            id="hallticket-subject-name"
+            name="subjectName"
             value={subjectName} 
             onChange={(e) => setSubjectName(e.target.value)} 
             placeholder="e.g. Mathematics"
@@ -570,8 +591,10 @@ function SubjectForm({ expectedCount, addedCount, onAddSubject }: SubjectFormPro
           />
         </div>
         <div className="space-y-2">
-          <Label>Exam Date</Label>
+          <Label htmlFor="hallticket-subject-date">Exam Date</Label>
           <Input 
+            id="hallticket-subject-date"
+            name="subjectDate"
             type="date" 
             value={subjectDate} 
             onChange={(e) => setSubjectDate(e.target.value)}

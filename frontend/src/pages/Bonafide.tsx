@@ -117,9 +117,9 @@ export default function Bonafide() {
         <div className="bg-card rounded-xl shadow-[var(--shadow-card)] p-6 no-print">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label>Gender</Label>
-              <Select value={gender} onValueChange={(v) => setGender(v as Gender)}>
-                <SelectTrigger>
+              <Label htmlFor="bonafide-gender">Gender</Label>
+              <Select name="gender" value={gender} onValueChange={(v) => setGender(v as Gender)}>
+                <SelectTrigger id="bonafide-gender">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -129,39 +129,87 @@ export default function Bonafide() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Parent Name</Label>
-              <Input value={parentName} onChange={(e) => setParentName(e.target.value)} placeholder="Father/Mother name" />
+              <Label htmlFor="bonafide-parent-name">Parent Name</Label>
+              <Input
+                id="bonafide-parent-name"
+                name="parentName"
+                value={parentName}
+                onChange={(e) => setParentName(e.target.value)}
+                placeholder="Father/Mother name"
+              />
             </div>
             <div className="space-y-2">
-              <Label>Date of Birth</Label>
-              <Input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+              <Label htmlFor="bonafide-date-of-birth">Date of Birth</Label>
+              <Input
+                id="bonafide-date-of-birth"
+                name="dateOfBirth"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Admission Number</Label>
-              <Input value={admissionNumber} onChange={(e) => setAdmissionNumber(e.target.value)} placeholder="Admission No." />
+              <Label htmlFor="bonafide-admission-number">Admission Number</Label>
+              <Input
+                id="bonafide-admission-number"
+                name="admissionNumber"
+                value={admissionNumber}
+                onChange={(e) => setAdmissionNumber(e.target.value)}
+                placeholder="Admission No."
+              />
             </div>
             <div className="space-y-2">
-              <Label>Aadhar Number</Label>
-              <Input value={aadharNumber} onChange={(e) => setAadharNumber(e.target.value)} placeholder="Aadhar No." />
+              <Label htmlFor="bonafide-aadhar-number">Aadhar Number</Label>
+              <Input
+                id="bonafide-aadhar-number"
+                name="aadharNumber"
+                value={aadharNumber}
+                onChange={(e) => setAadharNumber(e.target.value)}
+                placeholder="Aadhar No."
+              />
             </div>
             <div className="space-y-2">
-              <Label>Date of Admission</Label>
-              <Input type="date" value={dateOfAdmission} onChange={(e) => {
-                setDateOfAdmission(e.target.value);
-                setFromYear(e.target.value ? new Date(e.target.value).getFullYear().toString() : '');
-              }} />
+              <Label htmlFor="bonafide-date-of-admission">Date of Admission</Label>
+              <Input
+                id="bonafide-date-of-admission"
+                name="dateOfAdmission"
+                type="date"
+                value={dateOfAdmission}
+                onChange={(e) => {
+                  setDateOfAdmission(e.target.value);
+                  setFromYear(e.target.value ? new Date(e.target.value).getFullYear().toString() : '');
+                }}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Class Name</Label>
-              <Input value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Enter class name" />
+              <Label htmlFor="bonafide-class-name">Class Name</Label>
+              <Input
+                id="bonafide-class-name"
+                name="className"
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                placeholder="Enter class name"
+              />
             </div>
             <div className="space-y-2">
-              <Label>From Year</Label>
-              <Input value={fromYear} onChange={(e) => setFromYear(e.target.value)} placeholder="From year" />
+              <Label htmlFor="bonafide-from-year">From Year</Label>
+              <Input
+                id="bonafide-from-year"
+                name="fromYear"
+                value={fromYear}
+                onChange={(e) => setFromYear(e.target.value)}
+                placeholder="From year"
+              />
             </div>
             <div className="space-y-2">
-              <Label>To Year</Label>
-              <Input value={toYear} onChange={(e) => setToYear(e.target.value)} placeholder="To year" />
+              <Label htmlFor="bonafide-to-year">To Year</Label>
+              <Input
+                id="bonafide-to-year"
+                name="toYear"
+                value={toYear}
+                onChange={(e) => setToYear(e.target.value)}
+                placeholder="To year"
+              />
             </div>
           </div>
 
@@ -206,8 +254,11 @@ export default function Bonafide() {
               This is to certify that <span className="font-semibold">{honorific} {student.name}</span> {gender === 'male' ? 'S/o' : 'D/o'}{' '}
               <span className="hidden print-inline">{parentName || '________________'}</span>
               <input
+                id="bonafide-parent-name-inline"
+                name="parentNameInline"
                 value={parentName}
                 onChange={(e) => setParentName(e.target.value)}
+                aria-label="Parent name"
                 className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="Parent name"
               />
@@ -217,31 +268,43 @@ export default function Bonafide() {
             <p>
               {pronoun} studied from Class <span className="hidden print-inline">{className || '____'}</span>
               <input
+                id="bonafide-class-name-inline-1"
+                name="classNameInline1"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
+                aria-label="Class name"
                 className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="Class"
               />
               {' '} (Year{' '}
               <span className="hidden print-inline">{fromYear || '____'}</span>
               <input
+                id="bonafide-from-year-inline"
+                name="fromYearInline"
                 value={fromYear}
                 onChange={(e) => setFromYear(e.target.value)}
+                aria-label="From year"
                 className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="From year"
               />
               ) to Class <span className="hidden print-inline">{className || '____'}</span>
               <input
+                id="bonafide-class-name-inline-2"
+                name="classNameInline2"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
+                aria-label="Class name"
                 className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="Class"
               />
               {' '} (Year{' '}
               <span className="hidden print-inline">{toYear || '____'}</span>
               <input
+                id="bonafide-to-year-inline"
+                name="toYearInline"
                 value={toYear}
                 onChange={(e) => setToYear(e.target.value)}
+                aria-label="To year"
                 className="inline-block min-w-[5rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                 placeholder="To year"
               />
@@ -256,9 +319,12 @@ export default function Bonafide() {
               {possessive} date of birth as per school records is{' '}
               <span className="hidden print-inline">{dateOfBirth || '__________'}</span>
               <input
+                id="bonafide-dob-inline"
+                name="dateOfBirthInline"
                 type="date"
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
+                aria-label="Date of birth"
                 className="inline-block min-w-[10rem] border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
               />
               .
@@ -269,8 +335,11 @@ export default function Bonafide() {
                 <p className="text-sm text-muted-foreground">Admission No.</p>
                 <span className="hidden print-inline">{admissionNumber || '__________'}</span>
                 <input
+                  id="bonafide-admission-number-inline"
+                  name="admissionNumberInline"
                   value={admissionNumber}
                   onChange={(e) => setAdmissionNumber(e.target.value)}
+                  aria-label="Admission number"
                   className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="Admission No."
                 />
@@ -279,8 +348,11 @@ export default function Bonafide() {
                 <p className="text-sm text-muted-foreground">Aadhar No.</p>
                 <span className="hidden print-inline">{aadharNumber || '__________'}</span>
                 <input
+                  id="bonafide-aadhar-number-inline"
+                  name="aadharNumberInline"
                   value={aadharNumber}
                   onChange={(e) => setAadharNumber(e.target.value)}
+                  aria-label="Aadhar number"
                   className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="Aadhar No."
                 />
@@ -289,8 +361,11 @@ export default function Bonafide() {
                 <p className="text-sm text-muted-foreground">PEN No.</p>
                 <span className="hidden print-inline">{penNumber || '__________'}</span>
                 <input
+                  id="bonafide-pen-number-inline"
+                  name="penNumberInline"
                   value={penNumber}
                   onChange={(e) => setPenNumber(e.target.value)}
+                  aria-label="PEN number"
                   className="w-full border-b border-border bg-transparent px-1 py-0.5 text-base text-foreground outline-none no-print"
                   placeholder="PEN No."
                 />

@@ -1,11 +1,8 @@
 import express, { Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import { AuthRequest, authenticateToken } from '../middleware/auth.js';
-import { AppError } from '../middleware/errorHandler.js';
-import multer from 'multer';
-import path from 'path';
-
+import User from '../models/User';
+import { AuthRequest, authenticateToken } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 import multer from 'multer';
 import path from 'path';
 
@@ -198,6 +195,8 @@ router.post('/faculty', authenticateToken, upload.single('picture'), async (req:
 
 // Get all faculties (admin only)
 router.get('/faculties', authenticateToken, async (req: AuthRequest, res: Response, next) => {
+  console.log('Faculty API hit: /faculties');
+
   try {
     if (!req.user || req.user.role !== 'admin') {
       throw new AppError(403, 'Admin access required');
