@@ -74,6 +74,7 @@ const normalizePayment = (payment: any): Payment => ({
   mode: payment.mode === 'online' ? 'online' : 'cash',
   date: payment.date ? new Date(payment.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
   receiptNumber: payment.receiptNumber || generateReceiptNumber(),
+  createdAt: payment.createdAt ? new Date(payment.createdAt).toISOString() : new Date().toISOString(),
 });
 
 export const useStudentStore = create<StudentState>()((set, get) => ({

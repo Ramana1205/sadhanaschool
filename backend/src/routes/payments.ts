@@ -45,7 +45,7 @@ router.get('/student/:studentId', authenticateToken, async (req, res, next) => {
 
     const payments = await Payment.find({ studentId: req.params.studentId })
       .populate('studentId', 'name rollNumber')
-      .sort({ date: -1 });
+      .sort({ createdAt: 1 });
     res.json(payments);
   } catch (error) {
     next(error);

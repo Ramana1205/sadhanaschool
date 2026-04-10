@@ -38,25 +38,29 @@ export default function Receipt() {
   const student = selectedStudent ? students.find((s) => s.id === selectedStudent) : null;
 
   const getSortedPayments = () => {
-    return [...studentPayments].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return [...studentPayments].sort((a, b) => {
+      const aTime = new Date(a.createdAt || a.date).getTime();
+      const bTime = new Date(b.createdAt || b.date).getTime();
+      if (aTime !== bTime) return aTime - bTime;
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
   };
 
-  const getHistoricalBalanceByIndex = (paymentIndex: number, sortedPayments: any[]) => {
-    if (!student) return 0;
-    const totalPaidAll = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-    const initialDue = student.totalBalance + totalPaidAll;
-    const paymentsUpToIndex = sortedPayments.slice(0, paymentIndex + 1);
-    const totalPaid = paymentsUpToIndex.reduce((sum, p) => sum + p.amount, 0);
-    return Math.max(0, initialDue - totalPaid);
-  };
+  const sortedPayments = getSortedPayments();
+  const totalPaidAll = sortedPayments.reduce((sum, p) => sum + p.amount, 0);
+  const initialDue = student ? student.totalBalance + totalPaidAll : 0;
+  const statementRows = sortedPayments.reduce(
+    (rows: { payment: typeof sortedPayments[number]; remainingBalance: number }[], currentPayment, index) => {
+      const previousBalance = index === 0 ? initialDue : rows[index - 1].remainingBalance;
+      const remainingBalance = Math.max(0, previousBalance - currentPayment.amount);
+      rows.push({ payment: currentPayment, remainingBalance });
+      return rows;
+    },
+    []
+  );
 
-  const getHistoricalBalance = (paymentDate: string) => {
-    if (!student) return 0;
-    const totalPaidAll = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-    const initialDue = student.totalBalance + totalPaidAll;
-    const paymentsUpToDate = studentPayments.filter((p) => new Date(p.date) <= new Date(paymentDate));
-    const totalPaid = paymentsUpToDate.reduce((sum, p) => sum + p.amount, 0);
-    return Math.max(0, initialDue - totalPaid);
+  const getHistoricalBalanceByIndex = (paymentIndex: number) => {
+    return statementRows[paymentIndex]?.remainingBalance ?? 0;
   };
 
   const handlePrint = () => window.print();
@@ -141,13 +145,13 @@ export default function Receipt() {
                     </tr>
                   </thead>
                   <tbody>
-                    {getSortedPayments().map((p, index) => (
-                        <tr key={p.id}>
+                    {statementRows.map((row, index) => (
+                        <tr key={row.payment.id}>
                           <td className="border p-2">{index + 1}</td>
-                          <td className="border p-2">{formatDate(p.date)}</td>
-                          <td className="border p-2">{p.receiptNumber}</td>
-                          <td className="border p-2 text-right">₹{p.amount.toLocaleString()}</td>
-                          <td className="border p-2 text-right">₹{getHistoricalBalanceByIndex(index, getSortedPayments()).toLocaleString()}</td>
+                          <td className="border p-2">{formatDate(row.payment.date)}</td>
+                          <td className="border p-2">{row.payment.receiptNumber}</td>
+                          <td className="border p-2 text-right">₹{row.payment.amount.toLocaleString()}</td>
+                          <td className="border p-2 text-right">₹{row.remainingBalance.toLocaleString()}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -159,8 +163,8 @@ export default function Receipt() {
               </div>
             )}
             {printAll && (
-              getSortedPayments().map((p, index) => (
-                  <div key={p.id} className={`print-container bg-card rounded-xl shadow-[var(--shadow-card)] p-8 max-w-2xl mx-auto relative overflow-hidden ${index > 0 ? 'page-break' : ''}`}>
+              statementRows.map((row, index) => (
+                  <div key={row.payment.id} className={`print-container bg-card rounded-xl shadow-[var(--shadow-card)] p-8 max-w-2xl mx-auto relative overflow-hidden ${index > 0 ? 'page-break' : ''}`}>
                     {/* Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
                       <img
@@ -189,11 +193,11 @@ export default function Receipt() {
                     <div className="grid grid-cols-2 gap-4 mb-6 text-sm relative z-10">
                       <div>
                         <p className="text-muted-foreground">Receipt Number</p>
-                        <p className="font-semibold font-mono">{p.receiptNumber}</p>
+                        <p className="font-semibold font-mono">{row.payment.receiptNumber}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-muted-foreground">Date</p>
-                        <p className="font-semibold">{formatDate(p.date)}</p>
+                        <p className="font-semibold">{formatDate(row.payment.date)}</p>
                       </div>
                     </div>
 
@@ -215,15 +219,15 @@ export default function Receipt() {
                     <div className="border border-border rounded-lg p-4 mb-6 relative z-10">
                       <div className="flex justify-between text-sm mb-2">
                         <span className="text-muted-foreground">Amount Paid</span>
-                        <span className="font-bold text-lg text-success">₹{p.amount.toLocaleString()}</span>
+                        <span className="font-bold text-lg text-success">₹{row.payment.amount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between text-sm mb-2">
                         <span className="text-muted-foreground">Payment Mode</span>
-                        <span className="font-semibold capitalize">{p.mode}</span>
+                        <span className="font-semibold capitalize">{row.payment.mode}</span>
                       </div>
                       <div className="border-t border-border pt-2 mt-2 flex justify-between text-sm">
                         <span className="text-muted-foreground">Remaining Due</span>
-                        <span className="font-semibold text-destructive">₹{getHistoricalBalanceByIndex(index, getSortedPayments()).toLocaleString()}</span>
+                        <span className="font-semibold text-destructive">₹{row.remainingBalance.toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -242,8 +246,7 @@ export default function Receipt() {
                 ))
             )}
             {printSelected && payment && (() => {
-              const sortedPayments = getSortedPayments();
-              const paymentIndex = sortedPayments.findIndex(p => p.id === payment.id);
+              const paymentIndex = statementRows.findIndex((row) => row.payment.id === payment.id);
               return (
                 <div className="print-container bg-card rounded-xl shadow-[var(--shadow-card)] p-8 max-w-2xl mx-auto relative overflow-hidden">
                   {/* Watermark */}

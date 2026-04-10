@@ -47,6 +47,7 @@ export interface Payment {
   mode: 'cash' | 'online';
   date: string;
   receiptNumber: string;
+  createdAt: string;
 }
 
 export interface Subject {
