@@ -1,8 +1,8 @@
 import express, { Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
-import { AuthRequest, authenticateToken } from '../middleware/auth';
-import { AppError } from '../middleware/errorHandler';
+import User from '../models/User.js';
+import { AuthRequest, authenticateToken } from '../middleware/auth.js';
+import { AppError } from '../middleware/errorHandler.js';
 import multer from 'multer';
 import path from 'path';
 
