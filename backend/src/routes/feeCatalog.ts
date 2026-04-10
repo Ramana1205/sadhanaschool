@@ -17,7 +17,11 @@ router.get('/', authenticateToken, async (req, res, next) => {
     const fees = await FeeCatalog.find().sort({ class: 1 });
     res.json(fees);
   } catch (error) {
-    next(error);
+    console.error('Fee catalog error:', error);
+    if (error instanceof AppError) {
+      return next(error);
+    }
+    res.status(500).json({ message: (error as Error)?.message || 'Internal server error' });
   }
 });
 

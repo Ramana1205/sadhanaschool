@@ -16,11 +16,11 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  console.error('Error:', error);
+  console.error('Server Error:', error);
 
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
-      error: error.message,
+      message: error.message,
       statusCode: error.statusCode,
     });
     return;

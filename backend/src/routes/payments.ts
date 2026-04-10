@@ -28,7 +28,11 @@ router.get('/', authenticateToken, async (req, res, next) => {
       .sort({ createdAt: -1 });
     res.json(payments);
   } catch (error) {
-    next(error);
+    console.error('Payments error:', error);
+    if (error instanceof AppError) {
+      return next(error);
+    }
+    res.status(500).json({ message: (error as Error)?.message || 'Internal server error' });
   }
 });
 
