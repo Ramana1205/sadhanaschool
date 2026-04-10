@@ -33,6 +33,25 @@ const getToken = (): string | null => {
 };
 
 // ================= GENERIC REQUEST =================
+const parseJsonResponse = async (response: Response) => {
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error('Server returned invalid JSON');
+    }
+  }
+
+  if (response.ok) {
+    return {} as any;
+  }
+
+  throw new Error(text || `HTTP error! ${response.status}`);
+};
+
 const makeRequest = async <T>(
   endpoint: string,
   options: RequestInit = {},
@@ -60,12 +79,12 @@ const makeRequest = async <T>(
     headers,
   });
 
+  const body = await parseJsonResponse(response);
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || `HTTP error! ${response.status}`);
+    throw new Error(body?.error || body?.message || `HTTP error! ${response.status}`);
   }
 
-  return response.json();
+  return body as T;
 };
 
 export const apiFetch = async <T>(endpoint: string, options: RequestInit = {}) => {
@@ -79,11 +98,12 @@ export const apiFetch = async <T>(endpoint: string, options: RequestInit = {}) =
     ...options,
   });
 
+  const body = await parseJsonResponse(response);
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    throw new Error(body?.error || body?.message || `API error: ${response.status}`);
   }
 
-  return response.json() as Promise<T>;
+  return body as T;
 };
 
 // ================= AUTH =================
@@ -115,12 +135,12 @@ export const authApi = {
       body: formData,
     });
 
+    const body = await parseJsonResponse(response);
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create faculty');
+      throw new Error(body?.error || body?.message || 'Failed to create faculty');
     }
 
-    return response.json();
+    return body;
   },
 
   deleteFaculty: (id: string) =>

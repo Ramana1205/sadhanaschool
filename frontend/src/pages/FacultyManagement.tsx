@@ -163,28 +163,32 @@ export default function FacultyManagement() {
               <p className="text-muted-foreground text-center py-8">No faculties added yet</p>
             ) : (
               <div className="space-y-4">
-                {faculties.map((faculty) => (
-                  <div key={faculty._id ?? faculty.username} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={faculty.picture} alt={faculty.name} />
-                        <AvatarFallback>{faculty.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{faculty.name}</p>
-                        <p className="text-sm text-muted-foreground">@{faculty.username}</p>
+                {faculties.map((faculty) => {
+                  const deleteId = faculty._id ?? faculty.id;
+
+                  return (
+                    <div key={deleteId ?? faculty.username} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={faculty.picture} alt={faculty.name} />
+                          <AvatarFallback>{faculty.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{faculty.name}</p>
+                          <p className="text-sm text-muted-foreground">@{faculty.username}</p>
+                        </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                        onClick={() => deleteId ? handleDeleteFaculty(deleteId) : setError('Unable to delete this faculty')}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive"
-                      onClick={() => handleDeleteFaculty(faculty._id ?? faculty.username)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

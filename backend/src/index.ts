@@ -19,14 +19,16 @@ const PORT = process.env.PORT || 5001;
 const FRONTEND_URLS = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(url => url.trim()).filter(Boolean)
   : ['https://sadhanaschool.vercel.app'];
-const allowedOrigins = [...FRONTEND_URLS, 'http://localhost:5173'];
+const allowedOrigins = [...FRONTEND_URLS, 'http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:8080'];
 const corsOptions = {
   origin: (origin: string | undefined, callback: any) => {
     if (
       !origin ||
       allowedOrigins.includes(origin) ||
       origin.endsWith('.vercel.app') ||
-      origin.endsWith('.onrender.com')
+      origin.endsWith('.onrender.com') ||
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:')
     ) {
       return callback(null, true);
     }
@@ -40,7 +42,7 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-app.options('*', cors()); // allow OPTIONS preflight across all routes
+app.options('*', cors(corsOptions)); // allow OPTIONS preflight across all routes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('public/uploads'));
@@ -68,6 +70,14 @@ app.get('/health', (req, res) => {
 });
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Catch-all JSON 404 for missing routes
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl,
+  });
 });
 
 // Error handling
