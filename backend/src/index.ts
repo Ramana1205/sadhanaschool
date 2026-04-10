@@ -16,11 +16,18 @@ import User from './models/User.js';
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sadhanaschool.vercel.app';
-const allowedOrigins = [FRONTEND_URL, 'http://localhost:5173'];
+const FRONTEND_URLS = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim()).filter(Boolean)
+  : ['https://sadhanaschool.vercel.app'];
+const allowedOrigins = [...FRONTEND_URLS, 'http://localhost:5173'];
 const corsOptions = {
   origin: (origin: string | undefined, callback: any) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com')
+    ) {
       return callback(null, true);
     }
     callback(new Error(`CORS policy blocked origin: ${origin}`));

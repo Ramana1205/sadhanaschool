@@ -48,7 +48,7 @@ export default function DashboardLayout() {
     }`;
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full overflow-x-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -59,7 +59,7 @@ export default function DashboardLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`no-print fixed inset-y-0 left-0 z-50 w-64 bg-[hsl(var(--sidebar-background))] flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static ${
+        className={`no-print fixed inset-y-0 left-0 z-50 w-64 bg-[hsl(var(--sidebar-background))] flex flex-col transition-transform duration-300 lg:translate-x-0 lg:fixed ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -114,7 +114,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         {/* Top bar */}
         <header className="no-print sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
           <Button

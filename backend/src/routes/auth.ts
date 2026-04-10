@@ -209,4 +209,24 @@ router.get('/faculties', authenticateToken, async (req: AuthRequest, res: Respon
   }
 });
 
+// Delete faculty (admin only)
+router.delete('/faculties/:id', authenticateToken, async (req: AuthRequest, res: Response, next) => {
+  try {
+    if (!req.user || req.user.role !== 'admin') {
+      throw new AppError(403, 'Admin access required');
+    }
+
+    const { id } = req.params;
+
+    const deletedFaculty = await User.findOneAndDelete({ _id: id, role: 'faculty' });
+    if (!deletedFaculty) {
+      throw new AppError(404, 'Faculty not found');
+    }
+
+    res.json({ message: 'Faculty deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

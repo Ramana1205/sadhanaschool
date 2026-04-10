@@ -62,6 +62,24 @@ export default function FacultyManagement() {
     setFormData(prev => ({ ...prev, picture: file }));
   };
 
+  const handleDeleteFaculty = async (id: string) => {
+    if (!window.confirm('Delete this faculty account?')) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await authApi.deleteFaculty(id);
+      await loadFaculties();
+    } catch (error: any) {
+      setError(error.message || 'Failed to delete faculty');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="page-header">
@@ -146,7 +164,7 @@ export default function FacultyManagement() {
             ) : (
               <div className="space-y-4">
                 {faculties.map((faculty) => (
-                  <div key={faculty.username} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={faculty._id ?? faculty.username} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarImage src={faculty.picture} alt={faculty.name} />
@@ -157,7 +175,12 @@ export default function FacultyManagement() {
                         <p className="text-sm text-muted-foreground">@{faculty.username}</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-destructive">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      onClick={() => handleDeleteFaculty(faculty._id ?? faculty.username)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

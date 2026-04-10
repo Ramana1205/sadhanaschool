@@ -123,6 +123,9 @@ export const authApi = {
     return response.json();
   },
 
+  deleteFaculty: (id: string) =>
+    makeRequest(`/auth/faculties/${id}`, { method: 'DELETE' }),
+
   getFaculties: () =>
     makeRequest('/auth/faculties', { method: 'GET' }),
 };

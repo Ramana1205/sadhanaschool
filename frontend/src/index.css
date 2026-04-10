@@ -92,6 +92,8 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
   h1, h2, h3 {
     font-family: 'Playfair Display', serif;
