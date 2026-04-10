@@ -22,24 +22,50 @@ interface StudentState {
 
 type PaymentInput = Omit<Payment, 'id'> & Partial<Pick<Payment, 'id' | 'receiptNumber'>>;
 
-const normalizeStudent = (student: any): Student => ({
-  id: student._id || student.id || Date.now().toString(),
-  name: student.name || '',
-  class: student.class || '',
-  section: student.section || '',
-  rollNumber: student.rollNumber || '',
-  contactNumber: student.contactNumber || '',
-  address: student.address || '',
-  totalFee: Number(student.totalFee || 0),
-  photo: student.photo,
-  admissionNumber: student.admissionNumber || undefined,
-  dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : undefined,
-  fatherName: student.fatherName || undefined,
-  motherName: student.motherName || undefined,
-  dateOfAdmission: student.dateOfAdmission ? new Date(student.dateOfAdmission).toISOString().split('T')[0] : undefined,
-  aadharNumber: student.aadharNumber || undefined,
-  createdAt: student.createdAt || new Date().toISOString().split('T')[0],
-});
+const normalizeStudent = (student: any): Student => {
+  const previousBalance = Number(student.previousBalance ?? 0);
+  const presentBalance = Number(student.presentBalance ?? student.totalFee ?? 0);
+  const discount = Number(student.discount ?? 0);
+  const paid = Number(student.paid ?? 0);
+  const totalBalance = Number(student.totalBalance ?? Math.max(0, previousBalance + presentBalance - discount - paid));
+
+  return {
+    id: student._id || student.id || Date.now().toString(),
+    name: student.name || '',
+    class: student.class || '',
+    section: student.section || '',
+    rollNumber: student.rollNumber || '',
+    contactNumber: student.contactNumber || '',
+    address: student.address || '',
+    previousBalance,
+    presentBalance,
+    discount,
+    paid,
+    totalBalance,
+    totalFee: student.totalFee !== undefined ? Number(student.totalFee) : undefined,
+    switchHistory: student.switchHistory
+      ? {
+          oldClass: student.switchHistory.oldClass,
+          oldPreviousBalance: Number(student.switchHistory.oldPreviousBalance ?? 0),
+          oldPresentBalance: Number(student.switchHistory.oldPresentBalance ?? 0),
+          oldDiscount: Number(student.switchHistory.oldDiscount ?? 0),
+          oldPaid: student.switchHistory.oldPaid !== undefined ? Number(student.switchHistory.oldPaid) : undefined,
+          oldTotalBalance: Number(student.switchHistory.oldTotalBalance ?? 0),
+          switchedAt: student.switchHistory.switchedAt
+            ? new Date(student.switchHistory.switchedAt).toISOString()
+            : new Date().toISOString(),
+        }
+      : undefined,
+    photo: student.photo,
+    admissionNumber: student.admissionNumber || undefined,
+    dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : undefined,
+    fatherName: student.fatherName || undefined,
+    motherName: student.motherName || undefined,
+    dateOfAdmission: student.dateOfAdmission ? new Date(student.dateOfAdmission).toISOString().split('T')[0] : undefined,
+    aadharNumber: student.aadharNumber || undefined,
+    createdAt: student.createdAt || new Date().toISOString().split('T')[0],
+  };
+};
 
 const normalizePayment = (payment: any): Payment => ({
   id: payment._id || payment.id || Date.now().toString(),
@@ -104,15 +130,12 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
   getRemainingDue: (studentId) => {
     const student = get().students.find((s) => s.id === studentId);
     if (!student) return 0;
-    return student.totalFee - get().getTotalPaid(studentId);
+    return student.totalBalance;
   },
   getTotalFeesCollected: () => get().payments.reduce((sum, p) => sum + p.amount, 0),
   getTotalPendingFees: () => {
     const state = get();
-    return state.students.reduce((sum, s) => {
-      const paid = state.payments.filter((p) => p.studentId === s.id).reduce((a, p) => a + p.amount, 0);
-      return sum + (s.totalFee - paid);
-    }, 0);
+    return state.students.reduce((sum, s) => sum + s.totalBalance, 0);
   },
   getClassDistribution: () => {
     const state = get();
@@ -120,7 +143,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
     state.students.forEach((s) => {
       classMap.set(s.class, (classMap.get(s.class) || 0) + 1);
     });
-    const order = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+    const order = ['Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th', 'Alumni'];
     return order
       .filter((c) => classMap.has(c))
       .map((c) => ({ className: c, count: classMap.get(c)! }));

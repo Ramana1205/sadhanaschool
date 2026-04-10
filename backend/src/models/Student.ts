@@ -7,7 +7,20 @@ export interface IStudent extends Document {
   rollNumber: string;
   contactNumber: string;
   address: string;
-  totalFee: number;
+  previousBalance: number;
+  presentBalance: number;
+  totalBalance: number;
+  discount: number;
+  paid: number;
+  switchHistory?: {
+    oldClass: string;
+    oldPreviousBalance: number;
+    oldPresentBalance: number;
+    oldDiscount: number;
+    oldPaid: number;
+    oldTotalBalance: number;
+    switchedAt: Date;
+  };
   photo?: string;
   admissionNumber?: string;
   dateOfBirth?: Date;
@@ -43,6 +56,9 @@ const studentSchema = new Schema<IStudent>(
         '8th',
         '9th',
         '10th',
+        '11th',
+        '12th',
+        'Alumni',
       ],
     },
     section: {
@@ -63,10 +79,48 @@ const studentSchema = new Schema<IStudent>(
       type: String,
       required: true,
     },
-    totalFee: {
+    previousBalance: {
       type: Number,
       required: true,
+      default: 0,
       min: 0,
+    },
+    presentBalance: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+    discount: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+    paid: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+    totalBalance: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+    switchHistory: {
+      type: {
+        oldClass: { type: String, required: true },
+        oldPreviousBalance: { type: Number, required: true, min: 0 },
+        oldPresentBalance: { type: Number, required: true, min: 0 },
+        oldDiscount: { type: Number, required: true, min: 0 },
+        oldPaid: { type: Number, required: true, min: 0 },
+        oldTotalBalance: { type: Number, required: true, min: 0 },
+        switchedAt: { type: Date, required: true },
+      },
+      required: false,
+      default: undefined,
     },
     photo: {
       type: String,

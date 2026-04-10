@@ -120,7 +120,52 @@ export const studentsApi = {
 
   delete: (id: string) =>
     makeRequest(`/students/${id}`, { method: 'DELETE' }),
+
+  switchClass: (id: string, data: { newClass: string }) =>
+    makeRequest(`/students/switch-class/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  undoSwitch: (id: string) =>
+    makeRequest(`/students/undo-switch/${id}`, { method: 'PUT' }),
+
+  promoteAll: () =>
+    makeRequest('/students/promote-all', { method: 'PUT' }),
+
+  undoPromoteAll: () =>
+    makeRequest('/students/undo-promote-all', { method: 'PUT' }),
+
+  getPromotionStatus: () =>
+    makeRequest('/students/promotion-status', { method: 'GET' }),
+
+  backfillBalances: () =>
+    makeRequest('/students/backfill-balances', { method: 'PUT' }),
 };
+
+export const feeCatalogApi = {
+  getAll: () =>
+    makeRequest('/fee-catalog', { method: 'GET' }),
+
+  getByClass: (className: string) =>
+    makeRequest(`/fee-catalog/class/${encodeURIComponent(className)}`, { method: 'GET' }),
+
+  create: (data: any) =>
+    makeRequest('/fee-catalog', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: any) =>
+    makeRequest(`/fee-catalog/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    makeRequest(`/fee-catalog/${id}`, { method: 'DELETE' }),
+};
+
 // ================= HALL TICKETS =================
 export const hallTicketsApi = {
   getAll: () =>

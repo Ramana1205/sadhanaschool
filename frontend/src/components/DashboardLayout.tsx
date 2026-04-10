@@ -23,6 +23,7 @@ export default function DashboardLayout() {
   if (user?.role === 'admin') {
     navItems.unshift({ to: '/admin-dashboard', label: 'Admin Home', icon: LayoutDashboard });
     navItems.push({ to: '/faculty-management', label: 'Faculty Management', icon: UserCog });
+    navItems.push({ to: '/fee-catalog', label: 'Fee Catalog', icon: GraduationCap });
     navItems.push({ to: '/admin-settings', label: 'Admin Settings', icon: FileText });
   }
 

@@ -6,7 +6,7 @@ import StudentFilter from '@/components/StudentFilter';
 
 export default function Payments() {
   const navigate = useNavigate();
-  const { students, addPayment } = useStudentStore();
+  const { students, addPayment, loadStudents } = useStudentStore();
 
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [amount, setAmount] = useState('');
@@ -16,18 +16,8 @@ export default function Payments() {
   const selectedStudent = students.find((s) => s.id === selectedStudentId);
 
   useEffect(() => {
-    const loadStudents = async () => {
-      try {
-        const data = (await studentsApi.getAll()) as any[];
-        const mapped = data.map((s: any) => ({ ...s, id: s._id }));
-        useStudentStore.setState({ students: mapped });
-      } catch (error) {
-        console.error('Failed to load students for payments', error);
-      }
-    };
-
     loadStudents();
-  }, []);
+  }, [loadStudents]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,9 +45,9 @@ export default function Payments() {
         receiptNumber: created.receiptNumber,
       });
 
+      await loadStudents();
       setRecentPayment(created);
       alert('Payment added successfully');
-
       setSelectedStudentId('');
       setAmount('');
       setMode('cash');

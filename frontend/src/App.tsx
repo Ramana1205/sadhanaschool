@@ -14,6 +14,7 @@ import Receipt from "./pages/Receipt";
 import HallTicket from "./pages/HallTicket";
 import ReportCard from "./pages/ReportCard";
 import Bonafide from "./pages/Bonafide";
+import FeeCatalog from "./pages/FeeCatalog";
 import AdminSettings from "./pages/AdminSettings";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import FacultySchedule from "./pages/FacultySchedule";
@@ -60,6 +61,7 @@ const App = () => {
             <Route path="/faculty-management" element={<RoleRoute allowedRoles={["admin"]}><FacultyManagement /></RoleRoute>} />
             <Route path="/faculty-schedule" element={<RoleRoute allowedRoles={["faculty"]}><FacultySchedule /></RoleRoute>} />
             <Route path="/students" element={<Students />} />
+            <Route path="/fee-catalog" element={<RoleRoute allowedRoles={["admin"]}><FeeCatalog /></RoleRoute>} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/receipt" element={<Receipt />} />
             <Route path="/hall-ticket" element={<HallTicket />} />

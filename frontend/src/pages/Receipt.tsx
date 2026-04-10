@@ -12,7 +12,7 @@ const logoUrl = '/logo.png';
 import StudentFilter from '@/components/StudentFilter';
 
 export default function Receipt() {
-  const { students, payments, getTotalPaid, getRemainingDue } = useStudentStore();
+  const { students, payments, loadStudents, loadPayments } = useStudentStore();
   const [searchParams] = useSearchParams();
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
@@ -26,28 +26,37 @@ export default function Receipt() {
     const paymentId = searchParams.get('paymentId');
     if (studentId) setSelectedStudent(studentId);
     if (paymentId) setSelectedPayment(paymentId);
-  }, [searchParams]);
+
+    (async () => {
+      await loadStudents();
+      await loadPayments();
+    })();
+  }, [searchParams, loadStudents, loadPayments]);
 
   const studentPayments = payments.filter((p) => p.studentId === selectedStudent);
   const payment = payments.find((p) => p.id === selectedPayment);
   const student = selectedStudent ? students.find((s) => s.id === selectedStudent) : null;
 
   const getSortedPayments = () => {
-    return studentPayments.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return [...studentPayments].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
 
   const getHistoricalBalanceByIndex = (paymentIndex: number, sortedPayments: any[]) => {
     if (!student) return 0;
+    const totalPaidAll = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+    const initialDue = student.totalBalance + totalPaidAll;
     const paymentsUpToIndex = sortedPayments.slice(0, paymentIndex + 1);
     const totalPaid = paymentsUpToIndex.reduce((sum, p) => sum + p.amount, 0);
-    return student.totalFee - totalPaid;
+    return Math.max(0, initialDue - totalPaid);
   };
 
   const getHistoricalBalance = (paymentDate: string) => {
     if (!student) return 0;
+    const totalPaidAll = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+    const initialDue = student.totalBalance + totalPaidAll;
     const paymentsUpToDate = studentPayments.filter((p) => new Date(p.date) <= new Date(paymentDate));
     const totalPaid = paymentsUpToDate.reduce((sum, p) => sum + p.amount, 0);
-    return student.totalFee - totalPaid;
+    return Math.max(0, initialDue - totalPaid);
   };
 
   const handlePrint = () => window.print();
@@ -145,8 +154,7 @@ export default function Receipt() {
                 </table>
                 <div className="mt-6 text-right">
                   <p className="font-semibold">Total Paid: ₹{studentPayments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}</p>
-                  <p className="font-semibold">Total Fee: ₹{student?.totalFee.toLocaleString()}</p>
-                  <p className="font-semibold">Final Pending: ₹{(student?.totalFee - studentPayments.reduce((sum, p) => sum + p.amount, 0)).toLocaleString()}</p>
+                  <p className="font-semibold">Remaining Due: ₹{student?.totalBalance.toLocaleString()}</p>
                 </div>
               </div>
             )}

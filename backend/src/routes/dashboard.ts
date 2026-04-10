@@ -23,7 +23,7 @@ router.get('/', authenticateToken, async (req, res, next) => {
       {
         $group: {
           _id: null,
-          total: { $sum: '$totalFee' },
+          total: { $sum: { $ifNull: ['$totalBalance', '$totalFee'] } },
         },
       },
     ]);

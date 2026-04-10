@@ -5,6 +5,11 @@ import Student from '../models/Student.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { AppError } from '../middleware/errorHandler.js';
 
+const calculateTotalBalance = (previousBalance: number, presentBalance: number, discount: number, paid: number = 0): number => {
+  const total = previousBalance + presentBalance - discount - paid;
+  return Math.max(0, Number.isFinite(total) ? total : 0);
+};
+
 const router = express.Router();
 
 // Generate receipt number
@@ -48,8 +53,13 @@ router.post('/', authenticateToken, async (req, res, next) => {
   try {
     const { studentId, amount, mode, date } = req.body;
 
-    if (!studentId || !amount || !mode) {
+    if (!studentId || amount === undefined || amount === null || !mode) {
       throw new AppError(400, 'Missing required fields');
+    }
+
+    const parsedAmount = Number(amount);
+    if (Number.isNaN(parsedAmount) || parsedAmount < 0) {
+      throw new AppError(400, 'Invalid payment amount');
     }
 
     if (!isValidObjectId(studentId)) {
@@ -63,13 +73,24 @@ router.post('/', authenticateToken, async (req, res, next) => {
 
     const payment = new Payment({
       studentId,
-      amount,
+      amount: parsedAmount,
       mode,
       date: date || new Date(),
       receiptNumber: generateReceiptNumber(),
     });
 
     await payment.save();
+
+    const updatedPaid = Number(student.paid ?? 0) + parsedAmount;
+    student.paid = updatedPaid;
+    student.totalBalance = calculateTotalBalance(
+      Number(student.previousBalance ?? 0),
+      Number(student.presentBalance ?? 0),
+      Number(student.discount ?? 0),
+      updatedPaid
+    );
+    await student.save();
+
     await payment.populate('studentId', 'name rollNumber');
 
     res.status(201).json(payment);
@@ -101,10 +122,31 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
       throw new AppError(404, 'Payment not found');
     }
 
+    const parsedAmount = amount !== undefined && amount !== null ? Number(amount) : payment.amount;
+    if (amount !== undefined && (Number.isNaN(parsedAmount) || parsedAmount < 0)) {
+      throw new AppError(400, 'Invalid payment amount');
+    }
+
+    const student = await Student.findById(payment.studentId);
+    if (!student) {
+      throw new AppError(404, 'Related student not found');
+    }
+
+    const amountDelta = parsedAmount - payment.amount;
+    const updatedPaid = Math.max(0, Number(student.paid ?? 0) + amountDelta);
+    student.paid = updatedPaid;
+    student.totalBalance = calculateTotalBalance(
+      Number(student.previousBalance ?? 0),
+      Number(student.presentBalance ?? 0),
+      Number(student.discount ?? 0),
+      updatedPaid
+    );
+    await student.save();
+
     const updatedPayment = await Payment.findByIdAndUpdate(
       req.params.id,
       {
-        amount: amount !== undefined ? amount : payment.amount,
+        amount: parsedAmount,
         mode: mode || payment.mode,
         date: date || payment.date,
       },
@@ -120,10 +162,27 @@ router.put('/:id', authenticateToken, async (req, res, next) => {
 // Delete payment
 router.delete('/:id', authenticateToken, async (req, res, next) => {
   try {
-    const payment = await Payment.findByIdAndDelete(req.params.id);
+    const payment = await Payment.findById(req.params.id);
     if (!payment) {
       throw new AppError(404, 'Payment not found');
     }
+
+    const student = await Student.findById(payment.studentId);
+    if (!student) {
+      throw new AppError(404, 'Related student not found');
+    }
+
+    const updatedPaid = Math.max(0, Number(student.paid ?? 0) - Number(payment.amount));
+    student.paid = updatedPaid;
+    student.totalBalance = calculateTotalBalance(
+      Number(student.previousBalance ?? 0),
+      Number(student.presentBalance ?? 0),
+      Number(student.discount ?? 0),
+      updatedPaid
+    );
+    await student.save();
+
+    await payment.deleteOne();
     res.json({ message: 'Payment deleted successfully' });
   } catch (error) {
     next(error);

@@ -15,7 +15,21 @@ export interface Student {
   rollNumber: string;
   contactNumber: string;
   address: string;
-  totalFee: number;
+  previousBalance: number;
+  presentBalance: number;
+  discount: number;
+  paid: number;
+  totalBalance: number;
+  totalFee?: number; // compatibility fallback
+  switchHistory?: {
+    oldClass: string;
+    oldPreviousBalance: number;
+    oldPresentBalance: number;
+    oldDiscount: number;
+    oldPaid?: number;
+    oldTotalBalance: number;
+    switchedAt: string;
+  };
   photo?: string;
   admissionNumber?: string;
   dateOfBirth?: string;

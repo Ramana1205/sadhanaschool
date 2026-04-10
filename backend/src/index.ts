@@ -9,6 +9,7 @@ import paymentRoutes from './routes/payments.js';
 import dashboardRoutes from './routes/dashboard.js';
 import reportCardRoutes from './routes/reportCards.js';
 import hallTicketRoutes from './routes/hallTickets.js';
+import feeCatalogRoutes from './routes/feeCatalog.js';
 import User from './models/User.js';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/report-cards', reportCardRoutes);
 app.use('/api/hall-tickets', hallTicketRoutes);
+app.use('/api/fee-catalog', feeCatalogRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
